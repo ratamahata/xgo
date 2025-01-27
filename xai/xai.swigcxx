@@ -1,0 +1,8 @@
+%module xai
+%{
+#include "Logger.h"
+#include "GameBoard.h"
+%}
+
+%include "Logger.h"
+%include "GameBoard.h"
