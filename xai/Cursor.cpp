@@ -11,7 +11,7 @@
 
 //#pragma package(smart_init)
 
-Cursor::CursorHistory::CursorHistory() {
+CursorHistory::CursorHistory() {
         memset((void*)en, 0, sizeof(CursorHistory));
 };
 
@@ -27,11 +27,11 @@ Cursor::Cursor(SimplyNumbers *simplyGen, Hashtable *movesHash) {
 //=============================================================================
 
 //inline
-Cursor::CursorHistory *Cursor::current() {
+CursorHistory *Cursor::current() {
         return &(history[count-1]);
 }
 
-Cursor::CursorHistory *Cursor::getMove(int i) {
+CursorHistory *Cursor::getMove(int i) {
         return &(history[i]);
 }
 

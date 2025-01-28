@@ -6,22 +6,21 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"github.com/ratamahata/xgo/xai"
 	"github.com/ratamahata/xgo/xfyneui"
 )
+
+/*
+#cgo CFLAGS: -m32
+#cgo LDFLAGS: -m32 -Lxai -lGameBoard
+#include "GameBoard.h"
+*/
+import "github.com/ratamahata/xgo/xai"
 
 type appInfo struct {
 	name string
 	icon fyne.Resource
 	canv bool
 	run  func(fyne.Window) fyne.CanvasObject
-}
-
-type symm struct {
-	swapX   bool
-	swapY   bool
-	swapW   bool
-	swapXYW bool
 }
 
 var appx = appInfo{"Tic Tac Toe", nil, true, xfyneui.Show}

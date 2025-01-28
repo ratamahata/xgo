@@ -10,21 +10,16 @@
 #define TOTAL_CELLS 225 //fsize*fsize, cells total
 
 #define MAX_ENABLERS 32
-//---------------------------------------------------------------------------
-
-class Cursor {
-
 #define MAX_RELATIVES 224 // == (fsize*fsize - 1)
+//---------------------------------------------------------------------------
+class RelativeBucket {
+        public:
+        int count;
+        TNode* node[MAX_RELATIVES];
+        TMove move[MAX_RELATIVES];
+};
 
-public:
-        class RelativeBucket {
-                public:
-                int count;
-                TNode* node[MAX_RELATIVES];
-                TMove move[MAX_RELATIVES];
-        };
-
-  struct CursorHistory {
+struct CursorHistory {
     CursorHistory();
     TMove en[MAX_ENABLERS],//"Enabled" moves buffer
           move;
@@ -33,8 +28,13 @@ public:
     TNode *node;
     RelativeBucket parents;
     int previousKlValue;
-//    bool removed;
-  };
+//  bool removed;
+};
+
+
+class Cursor {
+
+public:
 
   int gameMode;//0 = Go - Moku, 1 = 5-in-a-row, 2 = Renjue
   int count;//count of moves made

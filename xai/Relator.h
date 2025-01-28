@@ -6,6 +6,12 @@
 #include "Evaluator.h"
 #include "TNode.h"
 
+class MovesBucket {
+        public:
+        int count;
+        TMove move[MAX_RELATIVES];
+};
+
 class Relator : public Evaluator {
 
         public:
@@ -16,18 +22,12 @@ class Relator : public Evaluator {
 //-------------------------------------
         protected:
 
-        class MovesBucket {
-                public:
-                int count;
-                TMove move[MAX_RELATIVES];
-        };
-
         Relator(SimplyNumbers*, Hashtable* );
 
         MovesBucket newChilds;
         TNode* getChild(TNode *parent, TMove childMove);
         void findMovesToExpand();
-        Cursor::RelativeBucket getParents(TNode *node);
+        RelativeBucket getParents(TNode *node);
         bool isPerspectiveChild(TMove move);
         bool isPerspectiveChildMode1(TMove move);
 

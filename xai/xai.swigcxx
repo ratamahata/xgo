@@ -1,8 +1,18 @@
 %module xai
 %{
 #include "Logger.h"
+#include "Cursor.h"
+#include "Evaluator.h"
+#include "Relator.h"
+#include "Expander.h"
+#include "Builder.h"
 #include "GameBoard.h"
 %}
 
 %include "Logger.h"
+%include "Cursor.h"
+%include "Evaluator.h"
+%include "Relator.h"
+%include "Expander.h"
+%include "Builder.h"
 %include "GameBoard.h"

@@ -63,6 +63,6 @@ void Logger::printLastError(char *buffer) {
                 lastError != NULL
                         ? lastError : missAgeCount > 0
                         ? "Hash collisions %d"
-                        : "\0", missAgeCount);
+                        : " ", missAgeCount);
         }
 }

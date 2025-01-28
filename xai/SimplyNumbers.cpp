@@ -16,11 +16,7 @@ SimplyNumbers::SimplyNumbers() {
 //returns next simply number, unique for each move
 unsigned long SimplyNumbers::getExistingHash(TMove move) {
   unsigned long b = hashValues[move];
-  if (b) {
-    return b;
-  } else {
-    return b/0;
-  }
+  return b;
 }
 
 //returns next simply number, unique for each move

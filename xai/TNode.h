@@ -3,9 +3,10 @@
 #define tnodeH
 //---------------------------------------------------------------------------
 #include "TNode.h"
-#include <cstdint>
 
-#define NULL 0
+#include <stdint.h>
+
+//#define NULL 0
 
 typedef unsigned char TByte;
 typedef TByte TMove;

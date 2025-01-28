@@ -134,9 +134,9 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
                 : tdiff == 4 ? 2
                 : tdiff == 8 ? 3
                 : -1;//should not happen
-        if (nvec < 0) {//Die!
-                nvec = nvec / 0;
-        }
+//        if (nvec < 0) {//Die!
+//                nvec = nvec / 0;
+//        }
         int x = move % 15, y = move / 15;
         bool inside = kl[x + vec[nvec][0] + 15*(y + vec[nvec][1])]
                 == kl[x - vec[nvec][0] + 15*(y - vec[nvec][1])];
