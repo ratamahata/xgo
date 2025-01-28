@@ -28,11 +28,13 @@ var appx = appInfo{"Tic Tac Toe", nil, true, xfyneui.Show}
 
 func main() {
 
-	xl := xai.NewLogger()
+	xb := xai.NewGameBoard(0)
 
 	//TODO the line below is just to ensure we can run the C++ code from here
 	//its need to remove it and instantiate GameBoard instead, and also connect it to the UI
-	xl.Hit()
+
+	//xb.Put('0')
+	xb.Build()
 	//x := xai.NewGameBoard()
 
 	a := app.New()

@@ -9,6 +9,13 @@
 
 #pragma package(smart_init)
 
+GameBoard::GameBoard(int gameMode) : Builder(simplyGen, movesHash, gameMode) {
+
+    SimplyNumbers *simplyGen = new SimplyNumbers();
+    Logger *logger = new Logger();
+    Hashtable *movesHash = new Hashtable(logger);
+    GameBoard(simplyGen, movesHash, &swapXb, &swapYb, &swapWb, &swapXYWb, gameMode);
+}
 
 GameBoard::GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash, 
                  bool *swapXp, bool *swapYp, bool *swapWp, bool *swapXYWp, int gameMode) : Builder(simplyGen, movesHash, gameMode) {
@@ -103,4 +110,8 @@ int GameBoard::move() {
 
   forward(choosenMove, choosen);
   return rating;
+};
+
+void GameBoard::build() {
+  buildTree();
 };
