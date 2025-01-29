@@ -12,10 +12,7 @@ class GameBoard : public Builder {
 public:
         bool *swapX, *swapY, *swapW, *swapXYW;
 
-        GameBoard(int gameMode);
-
-        GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash, 
-                 bool *swapX, bool *swapY, bool *swapW, bool *swapXYW, int gameMode);
+        GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash, int gameMode);
 
         bool put(TMove N);//can flip board
         int move();
@@ -26,6 +23,8 @@ private:
 
 
 };
+
+GameBoard* createXBoard(int gameMode);
 
 #endif
  

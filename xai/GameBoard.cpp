@@ -9,21 +9,14 @@
 
 #pragma package(smart_init)
 
-GameBoard::GameBoard(int gameMode) : Builder(simplyGen, movesHash, gameMode) {
+GameBoard::GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash,
+                 //bool *swapXp, bool *swapYp, bool *swapWp, bool *swapXYWp,
+                  int gameMode) : Builder(simplyGen, movesHash, gameMode) {
 
-    SimplyNumbers *simplyGen = new SimplyNumbers();
-    Logger *logger = new Logger();
-    Hashtable *movesHash = new Hashtable(logger);
-    GameBoard(simplyGen, movesHash, &swapXb, &swapYb, &swapWb, &swapXYWb, gameMode);
-}
-
-GameBoard::GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash, 
-                 bool *swapXp, bool *swapYp, bool *swapWp, bool *swapXYWp, int gameMode) : Builder(simplyGen, movesHash, gameMode) {
-
-    swapX = swapXp;
-    swapY = swapYp;
-    swapW = swapWp;
-    swapXYW = swapXYWp;
+    swapX = &swapXb;
+    swapY = &swapYb;
+    swapW = &swapWb;
+    swapXYW = &swapXYWb;
 
     bool isCreated;
     TNode *node = movesHash->getOrCreate(1, 1, 0, isCreated);
@@ -114,4 +107,19 @@ int GameBoard::move() {
 
 void GameBoard::build() {
   buildTree();
+};
+
+GameBoard* createXBoard(int gameMode) {
+
+    Logger *logger = new Logger();
+    SimplyNumbers *sn = new SimplyNumbers();
+    Hashtable *ht = new Hashtable(logger);
+    GameBoard* xo = new GameBoard(sn, ht, gameMode);
+    xo->logger = logger;
+
+    //std::cout << "init2 " << xo << std::endl;
+
+    xo->build();
+
+    return xo;
 };

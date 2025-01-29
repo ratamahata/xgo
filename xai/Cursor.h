@@ -45,7 +45,6 @@ public:
   TNode *lastMove();
   CursorHistory *getMove(int i);
   void restart();
-  bool back();
 
   Logger *logger;
 
@@ -70,7 +69,7 @@ protected:
 
         bool forward(TMove N);
         bool forward(TMove N, TNode* node);
-
+        bool back();
 
 };
 
