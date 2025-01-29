@@ -34,23 +34,28 @@ unsigned char line [2][linec][10]=
 
 Evaluator::Evaluator(SimplyNumbers *simplyGen, Hashtable *movesHash)
         : Cursor (simplyGen, movesHash) {
-  for(int i=0; i<linec*10; i++)
-    switch (line[0][0][i])
-    { case '_': line[0][0][i] = 2; break;//space
-      case 'x': line[0][0][i] = 4; break;
-      case 'o': line[0][0][i] = 8; break;
-      case 'T': line[0][0][i] =34; break;//X or space
-      case 'X': line[0][0][i] =36; break;//X or x
-      case '8': line[0][0][i] =40; break;//X or o
-      case '+': line[0][0][i] =20; break;//x or #
-      case '*': line[0][0][i] =52; break;//X or x or #
-      case '?': line[0][0][i] =54; break;//X or x or # or space
+  for(int j=0; j<linec; j++)
+   for(int i=0; i<10; i++)
+
+    switch (line[0][j][i])
+    { case '_': line[0][j][i] = 2; break;//space
+      case 'x': line[0][j][i] = 4; break;
+      case 'o': line[0][j][i] = 8; break;
+      case 'T': line[0][j][i] =34; break;//X or space
+      case 'X': line[0][j][i] =36; break;//X or x
+      case '8': line[0][j][i] =40; break;//X or o
+      case '+': line[0][j][i] =20; break;//x or #
+      case '*': line[0][j][i] =52; break;//X or x or #
+      case '?': line[0][j][i] =54; break;//X or x or # or space
     };
   memcpy(line[1][0],line[0][0],linec*10);
-  for(int i=0; i<linec*10; i++)
-    if ((line[1][0][i]&12) != 12)
-      if (line[1][0][i]&4) line[1][0][i] += 4;
-      else if (line[1][0][i]&8) line[1][0][i] -= 4;
+
+  for(int j=0; j<linec; j++)
+   for(int i=0; i<10; i++)
+
+    if ((line[1][j][i]&12) != 12)
+      if (line[1][j][i]&4) line[1][j][i] += 4;
+      else if (line[1][j][i]&8) line[1][j][i] -= 4;
 }
 
 //==============================================================================
