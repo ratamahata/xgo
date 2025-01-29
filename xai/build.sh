@@ -1,3 +1,10 @@
+#clean previous build
+rm *.o
+rm libxai.so
+rm libxai_wrap.so
+rm xai.go
+rm xai_wrap.c
+
 #4. Compile the 32-bit C/C++ Code
 #Compile the C/C++ code explicitly as 32-bit using the -m32 flag:
 
@@ -23,7 +30,7 @@ g++ -m32 -shared -o libxai.so GameBoard.o Builder.o Hashtable.o Logger.o Evaluat
 #Include the -go option for Go support and the Go module name.
 
 swig -go -cgo -intgosize 64 -c++ -o xai_wrap.c xai.swigcxx
-
+bu
 #6. **Compile the Wrapper Code as 32-bit**
 #Compile the generated wrapper file (`add_wrap.c`) with the `-m32` flag to ensure 32-bit compatibility:
 
