@@ -18,13 +18,16 @@ public:
         int move();
         void build();
 
+        int getCell(int Col, int Row);
+        void gridClick(int Col, int Row);
+
 private:
+        int userMoveRequested;
         bool swapXb, swapYb, swapWb, swapXYWb;
-
-
+        int transform(int x, int y);
 };
 
-GameBoard* createXBoard(int gameMode);
+GameBoard* getXBoard(int gameMode);
 
 #endif
  

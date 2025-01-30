@@ -109,17 +109,82 @@ void GameBoard::build() {
   buildTree();
 };
 
-GameBoard* createXBoard(int gameMode) {
+GameBoard* xo = NULL;
 
-    Logger *logger = new Logger();
-    SimplyNumbers *sn = new SimplyNumbers();
-    Hashtable *ht = new Hashtable(logger);
-    GameBoard* xo = new GameBoard(sn, ht, gameMode);
-    xo->logger = logger;
+GameBoard* getXBoard(int gameMode) {
 
-    //std::cout << "init2 " << xo << std::endl;
+    if (xo == NULL) {
 
-    xo->build();
-
+        Logger *logger = new Logger();
+        SimplyNumbers *sn = new SimplyNumbers();
+        Hashtable *ht = new Hashtable(logger);
+        xo = new GameBoard(sn, ht, gameMode);
+        xo->logger = logger;
+    }
     return xo;
 };
+
+//-------------------------------------------------------------------------------
+
+
+//return codes:
+// 1  X
+// 2  X (last move)
+//-1  O
+//-2  O (last move)
+//0   empty cell
+//3+  empty cell with hint
+int GameBoard::getCell(int Col, int Row) {
+
+
+    int N = transform(Col, Row);
+    bool found = false;
+    int bold = 1;
+    for(int i = 0; i < count; ++i) {
+      if (getMove(i)->move == N) {
+          found = true;
+          bold = ((i == count - 1) ? 2 : 1);
+          break;
+      }
+    }
+    if (found && kl[N]&8) {//draw 'o'
+        return -bold;
+    }
+    if (found && kl[N]&4) {//draw 'x'
+        return bold;
+    }
+//    if (dkl[N]>=1  && isAlllowed(N)) {//draw empty cell with hint
+//        return dkl[N] + 2;
+//    }
+    return 0;//empty cell
+};
+
+
+int GameBoard::transform(int x, int y) {
+
+    if (swapX) {
+        x = 14-x;
+    }
+    if (swapY) {
+        y = 14-y;
+    }
+    if (swapW) {
+        int t = x;
+        x = y;
+        y = t;
+    }
+//  if (swapXYW) {
+//        int t = x;
+//        x = 14-y;
+//        y = 14-t;
+//  }
+    return y*15+x;
+};
+
+void GameBoard::gridClick(int Col, int Row) {
+
+  userMoveRequested = transform(Row, Col);
+}
+
+
+
