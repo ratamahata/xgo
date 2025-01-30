@@ -37,7 +37,9 @@ class Cursor {
 public:
 
   int gameMode;//0 = Go - Moku, 1 = 5-in-a-row, 2 = Renjue
-  int count;//count of moves made
+  int count;  //count of moves made (may include imaginary moves of AI)
+  int count0; //count of moves made (only by players)
+  bool building; //indicates that some moves made by AI while executing buildTree() function, which will be taken back
 
   //inline
   CursorHistory *current();

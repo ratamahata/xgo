@@ -12,6 +12,9 @@ import (
 func Show(win fyne.Window) fyne.CanvasObject {
 
 	gb := xai.GetXBoard(0)
+
+	go gb.Grow()
+
 	board := &board{gb: gb}
 
 	grid := container.NewGridWithColumns(15)

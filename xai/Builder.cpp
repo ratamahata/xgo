@@ -21,7 +21,8 @@ Builder::Builder(SimplyNumbers* s, Hashtable* h, int gameMode)
 void Builder::buildTree() {
   //assert cursor==lastmove;
 
-  int count0 = count;
+  count0 = count;
+  building = true;
   CursorHistory *cur = current();
 
   int i;
@@ -43,6 +44,8 @@ void Builder::buildTree() {
   expand();
 
   while(count>count0) back();
+
+  building = false;
 
   /*
   //Auto cleaning (not works)
