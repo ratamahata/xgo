@@ -10,7 +10,6 @@
 #pragma package(smart_init)
 
 GameBoard::GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash,
-                 //bool *swapXp, bool *swapYp, bool *swapWp, bool *swapXYWp,
                   int gameMode) : Builder(simplyGen, movesHash, gameMode) {
 
     swapX = &swapXb;

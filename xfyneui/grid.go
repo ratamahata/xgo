@@ -5,11 +5,14 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/ratamahata/xgo/xai"
 )
 
 // Show loads a tic-tac-toe example window for the specified app context
 func Show(win fyne.Window) fyne.CanvasObject {
-	board := &board{}
+
+	gb := xai.GetXBoard(0)
+	board := &board{gb: gb}
 
 	grid := container.NewGridWithColumns(15)
 	for r := 0; r < 15; r++ {
@@ -25,6 +28,8 @@ func Show(win fyne.Window) fyne.CanvasObject {
 
 		board.Reset()
 	})
+
+	board.Reset()
 
 	return container.NewBorder(reset, nil, nil, nil, grid)
 }

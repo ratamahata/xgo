@@ -14,13 +14,15 @@ import (
 import "github.com/ratamahata/xgo/xai"
 
 type board struct {
+	gb       xai.GameBoard
 	pieces   [15][15]int
+	icons    [15][15]*boardIcon
 	turn     int
 	finished bool
-	gb       xai.SwigcptrGameBoard
 }
 
 func (b *board) result() uint8 {
+
 	//// Check for a win in the diagonal direction from top left to bottom right.
 	//if b.pieces[0][0] != 0 && b.pieces[0][0] == b.pieces[1][1] && b.pieces[1][1] == b.pieces[2][2] {
 	//	return b.pieces[0][0]
@@ -66,16 +68,17 @@ func (b *board) newClick(row, column int) {
 }
 
 func (b *board) Reset() {
-	//for i := range b.pieces {
-	//	b.pieces[i][0] = 0
-	//	b.pieces[i][1] = 0
-	//	b.pieces[i][2] = 0
-	//}
 
 	b.finished = false
-	b.turn = 0
+	b.turn = 1
 
-	initBoard(b)
+	for r := 0; r < 15; r++ {
+		for c := 0; c < 15; c++ {
+			b.pieces[r][c] = 0
+		}
+	}
+
+	sync(b)
 }
 
 type boardIcon struct {
@@ -90,9 +93,9 @@ func (i *boardIcon) Tapped(ev *fyne.PointEvent) {
 	}
 
 	if i.board.turn%2 == 0 {
-		i.SetResource(theme.RadioButtonIcon())
-	} else {
 		i.SetResource(theme.CancelIcon())
+	} else {
+		i.SetResource(theme.RadioButtonIcon())
 	}
 
 	i.board.newClick(i.row, i.column)
@@ -108,21 +111,27 @@ func newBoardIcon(row, column int, board *board) *boardIcon {
 	i := &boardIcon{board: board, row: row, column: column}
 	i.SetResource(theme.ViewFullScreenIcon())
 	i.ExtendBaseWidget(i)
+	board.icons[row][column] = i
 	return i
 }
 
-func initBoard(b *board) {
-
-	//b.finished = false
-	//b.turn = 0
-
-	//b.gb :=
-	gb := xai.GetXBoard(0)
-	gb.Build()
+func sync(b *board) {
+	xb := b.gb
 
 	for r := 0; r < 15; r++ {
 		for c := 0; c < 15; c++ {
-			b.pieces[r][c] = gb.GetCell(r, c)
+
+			code := xb.GetCell(r, c)
+
+			if b.pieces[r][c] != code {
+				b.pieces[r][c] = code
+
+				if code > 0 {
+					b.icons[r][c].SetResource(theme.CancelIcon())
+				} else if code < 0 {
+					b.icons[r][c].SetResource(theme.RadioButtonIcon())
+				}
+			}
 		}
 	}
 }

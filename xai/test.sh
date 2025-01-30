@@ -1,8 +1,8 @@
 #Test script, to verify correctness of C++ routines
 
 #clean previous build
-rm *.o
-rm xo
+rm -f *.o
+rm -f testxo
 
 #compile
 
@@ -25,3 +25,6 @@ mv Test.cpp Test.txt
 #run test, upon success should print success
 ./testxo
 
+#clean
+rm -f *.o
+rm -f testxo

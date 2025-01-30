@@ -8,6 +8,6 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    createXBoard(0);
+    getXBoard(0);
     std::cout << "success " << std::endl;
 };
