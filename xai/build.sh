@@ -17,13 +17,14 @@ g++ -m32 -o Evaluator.o -c Evaluator.cpp
 g++ -m32 -o Logger.o -c Logger.cpp
 g++ -m32 -o Hashtable.o -c Hashtable.cpp
 g++ -m32 -o Builder.o -c Builder.cpp
+g++ -m32 -o Grower.o -c Grower.cpp
 g++ -m32 -o GameBoard.o -c GameBoard.cpp
 
 #static library:
 #ar rcs libxai.a GameBoard.o Builder.o Hashtable.o Logger.o Evaluator.o Expander.o SimplyNumbers.o Relator.o TNode.o Cursor.o
 
 #or, shared library:
-g++ -m32 -shared -o libxai.so GameBoard.o Builder.o Hashtable.o Logger.o Evaluator.o Expander.o SimplyNumbers.o Relator.o TNode.o Cursor.o
+g++ -m32 -shared -o libxai.so GameBoard.o Grower.o Builder.o Hashtable.o Logger.o Evaluator.o Expander.o SimplyNumbers.o Relator.o TNode.o Cursor.o
 
 #5. Generate Go Bindings with SWIG
 #Run SWIG to generate the Go wrapper code for your interface file. 

@@ -8,15 +8,10 @@ import (
 	"time"
 )
 
-/*
-#cgo CFLAGS: -m32
-#cgo LDFLAGS: -m32 -Lxai -lGameBoard
-#include "GameBoard.h"
-*/
 import "github.com/ratamahata/xgo/xai"
 
 type board struct {
-	gb       xai.GameBoard
+	gb       xai.Grower
 	pieces   [15][15]int
 	icons    [15][15]*boardIcon
 	turn     int
