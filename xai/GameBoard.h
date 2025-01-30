@@ -22,6 +22,8 @@ public:
         int getCell(int Col, int Row);
         void gridClick(int Col, int Row);
 
+        int getRResult();
+
 private:
         bool swapXb, swapYb, swapWb, swapXYWb;
         int transform(int x, int y);

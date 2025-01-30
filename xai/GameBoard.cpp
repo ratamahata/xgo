@@ -187,6 +187,11 @@ void GameBoard::gridClick(int Col, int Row) {
   userMoveRequested = transform(Row, Col);
 }
 
+int GameBoard::getRResult(){
+
+  return resultRecieved;
+};
+
 
 #define MAX_CHILDS_WIZARD  40000000
 
