@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"time"
 )
 
 /*
@@ -49,7 +50,11 @@ func (b *board) result() uint8 {
 }
 
 func (b *board) newClick(row, column int) {
-	b.pieces[row][column] = b.turn%2 + 1
+	//b.pieces[row][column] = b.turn%2 + 1
+
+	xb := b.gb
+	xb.GridClick(column, row)
+	sync(b)
 
 	//if b.turn > 3 {
 	//	winner := b.result()
@@ -65,6 +70,7 @@ func (b *board) newClick(row, column int) {
 	//	dialog.ShowInformation("Player "+number+" has won!", "Congratulations to player "+number+" for winning.", fyne.CurrentApp().Driver().AllWindows()[0])
 	//	b.finished = true
 	//}
+
 }
 
 func (b *board) Reset() {
@@ -78,7 +84,7 @@ func (b *board) Reset() {
 		}
 	}
 
-	sync(b)
+	go syncPeriodic(b)
 }
 
 type boardIcon struct {
@@ -92,11 +98,11 @@ func (i *boardIcon) Tapped(ev *fyne.PointEvent) {
 		return
 	}
 
-	if i.board.turn%2 == 0 {
-		i.SetResource(theme.CancelIcon())
-	} else {
-		i.SetResource(theme.RadioButtonIcon())
-	}
+	//if i.board.turn%2 == 0 {
+	//	i.SetResource(theme.CancelIcon())
+	//} else {
+	//	i.SetResource(theme.RadioButtonIcon())
+	//}
 
 	i.board.newClick(i.row, i.column)
 	i.board.turn++
@@ -133,5 +139,11 @@ func sync(b *board) {
 				}
 			}
 		}
+	}
+}
+
+func syncPeriodic(b *board) {
+	for range time.Tick(time.Second * 2) {
+		sync(b)
 	}
 }
