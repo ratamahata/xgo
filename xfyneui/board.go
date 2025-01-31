@@ -19,13 +19,12 @@ type board struct {
 }
 
 func (b *board) newClick(row, column int) {
-	//b.pieces[row][column] = b.turn%2 + 1
 
 	xb := b.gb
 	xb.GridClick(column, row)
 	sync(b)
 
-	if b.turn > 3 {
+	if b.turn >= 9 {
 
 		hasWinner := xb.GetRResult() >= 32600 //|| xb.ResultRecieved <= -32600
 
@@ -54,7 +53,6 @@ func (b *board) Reset() {
 		}
 	}
 
-	go syncPeriodic(b)
 }
 
 type boardIcon struct {

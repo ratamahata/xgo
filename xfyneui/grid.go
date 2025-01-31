@@ -33,6 +33,7 @@ func Show(win fyne.Window) fyne.CanvasObject {
 	})
 
 	board.Reset()
+	go syncPeriodic(board)
 
 	return container.NewBorder(reset, nil, nil, nil, grid)
 }
