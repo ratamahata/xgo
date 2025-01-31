@@ -13,10 +13,7 @@
 GameBoard::GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash,
                   int gameMode) : Builder(simplyGen, movesHash, gameMode) {
 
-    swapX = &swapXb;
-    swapY = &swapYb;
-    swapW = &swapWb;
-    swapXYW = &swapXYWb;
+    swapX = swapY = swapW = false;
 
 };
 
@@ -29,19 +26,19 @@ bool GameBoard::put(TMove N) {
                 if (history[count-1].symmX  == 0) {
                     if (x < 0) {
                         x = -x;
-                        if (*swapW) {
-                                *swapY = !*swapY;
+                        if (swapW) {
+                                swapY = !swapY;
                         } else {
-                                *swapX = !*swapX;
+                                swapX = !swapX;
                         }
                     }
                 }
                 if ((  history[count-1].symmY  == 0 || history[count].symmXY  == 0) && y < 0) {
                         y = -y;
-                        if (*swapW) {
-                                *swapX = !*swapX;
+                        if (swapW) {
+                                swapX = !swapX;
                         } else {
-                                *swapY = !*swapY;
+                                swapY = !swapY;
                         }
                 }
 
@@ -49,7 +46,7 @@ bool GameBoard::put(TMove N) {
                         int t = x;
                         x = y;
                         y = t;
-                        *swapW = !*swapW;
+                        swapW = !swapW;
                 }
 
                 return forward((y+7)*15+(x+7));
@@ -150,11 +147,6 @@ int GameBoard::transform(int x, int y) {
         x = y;
         y = t;
     }
-//  if (swapXYW) {
-//        int t = x;
-//        x = 14-y;
-//        y = 14-t;
-//  }
     return y*15+x;
 };
 

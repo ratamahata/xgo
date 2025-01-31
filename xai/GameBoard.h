@@ -10,7 +10,6 @@
 class GameBoard : public Builder {
 
 public:
-        bool *swapX, *swapY, *swapW, *swapXYW;
 
         GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash, int gameMode);
         int getCell(int Col, int Row);
@@ -20,7 +19,7 @@ protected:
         int move();
         int transform(int x, int y);
 
-        bool swapXb, swapYb, swapWb, swapXYWb;
+        bool swapX, swapY, swapW;
 
 };
 
