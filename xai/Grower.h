@@ -12,7 +12,8 @@ public:
         Grower(SimplyNumbers *simplyGen, Hashtable *movesHash, int gameMode);
         void grow();
         void gridClick(int Col, int Row);
-        int getRResult();
+        int  getRResult();
+        void restartClick();
 
 protected:
         int userMoveRequested;

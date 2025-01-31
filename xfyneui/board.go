@@ -44,6 +44,7 @@ func (b *board) newClick(row, column int) {
 
 func (b *board) Reset() {
 
+	b.gb.RestartClick()
 	b.finished = false
 	b.turn = 1
 

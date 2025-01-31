@@ -311,6 +311,12 @@ int Grower::getRResult(){
   return resultRecieved;
 };
 
+void Grower::restartClick() {
+
+    restartRequested = true;
+}
+
+
 //------------------------
 Grower* xo = NULL;
 
