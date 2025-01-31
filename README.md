@@ -8,6 +8,6 @@ based on [Fyne](http://fyne.io) toolkit, pretty much on it's [tic tac toe](https
 ![image](img/itsfyne.jpg)
 
 
-[SWIG](https://www.swig.org/Doc3.0/Go.html) tool is used to incorporate C/C++ code into GO
+[SWIG](https://www.swig.org/Doc3.0/Go.html) tool is used to incorporate C/C++ code into GO Lang
 
 ![image](img/rstraight.jpg)
