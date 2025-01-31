@@ -199,25 +199,15 @@ void Grower::grow() {
         } else {
           if (wizardMode) {
 
-                  if (mediumicPlay || playMode == 2 //Comp vs Comp
-                        ) {
-                                moveRequested = true;
-                                continue;
-                  } else
-                  {
-                          if (!medRating) {
-                                        //bad path
-                                        if (wizardMode)
-                                        takeBackRequested = true;
+              if (mediumicPlay || playMode == 2) { //Comp vs Comp
 
-                                } else {
-                                        //just too long path
-                                        takeBackRequested = true;
-                                }
-                                continue;
-                  }
+                    moveRequested = true;
+              } else
+              {
+                    takeBackRequested = true;
+              }
+              continue;
           }
-
         }
 
         //********* STEP 5   stat outputs ***************
