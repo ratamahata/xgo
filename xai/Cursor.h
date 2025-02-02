@@ -36,6 +36,11 @@ class Cursor {
 
 public:
 
+  Logger *logger;
+  int getMovesCount();
+
+protected:
+
   int gameMode;//0 = Go - Moku, 1 = 5-in-a-row, 2 = Renjue
   int count;  //count of moves made (may include imaginary moves of AI)
   int count0; //count of moves made (only by players)
@@ -47,8 +52,6 @@ public:
   TNode *lastMove();
   CursorHistory *getMove(int i);
   void restart();
-
-  Logger *logger;
 
   Hashtable *movesHash;
   CursorHistory history[TOTAL_CELLS];

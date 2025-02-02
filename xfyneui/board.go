@@ -11,11 +11,11 @@ import (
 import "github.com/ratamahata/xgo/xai"
 
 type board struct {
-	gb       xai.Grower
-	pieces   [15][15]int
-	icons    [15][15]*boardIcon
-	turn     int
-	finished bool
+	gb                  xai.Grower
+	pieces              [15][15]int
+	icons               [15][15]*boardIcon
+	displayedMovesCount int
+	finished            bool
 }
 
 func (b *board) newClick(row, column int) {
@@ -24,17 +24,17 @@ func (b *board) newClick(row, column int) {
 	xb.GridClick(column, row)
 	sync(b)
 
-	if b.turn >= 9 {
+	if b.displayedMovesCount >= 9 {
 
 		hasWinner := xb.GetRResult() >= 32600 //|| xb.ResultRecieved <= -32600
 
 		if hasWinner {
-			number := string((b.turn % 2) + 49) // Number 1 is ascii #49 and 2 is ascii #50.
+			number := string((b.displayedMovesCount % 2) + 49) // Number 1 is ascii #49 and 2 is ascii #50.
 			dialog.ShowInformation("Player "+number+" has won!", "Congratulations to player "+number+" for winning.", fyne.CurrentApp().Driver().AllWindows()[0])
 			b.finished = true
 		}
 
-		if b.turn == 225 {
+		if b.displayedMovesCount == 225 {
 			dialog.ShowInformation("It is a tie!", "Nobody has won. Better luck next time.", fyne.CurrentApp().Driver().AllWindows()[0])
 			b.finished = true
 		}
@@ -46,7 +46,7 @@ func (b *board) Reset() {
 
 	b.gb.RestartClick()
 	b.finished = false
-	b.turn = 1
+	b.displayedMovesCount = 0
 
 	for r := 0; r < 15; r++ {
 		for c := 0; c < 15; c++ {
@@ -68,7 +68,6 @@ func (i *boardIcon) Tapped(ev *fyne.PointEvent) {
 	}
 
 	i.board.newClick(i.row, i.column)
-	i.board.turn++
 }
 
 func (i *boardIcon) Reset() {
@@ -86,6 +85,13 @@ func newBoardIcon(row, column int, board *board) *boardIcon {
 
 func sync(b *board) {
 	xb := b.gb
+
+	actualMoves := xb.GetMovesCount()
+	if actualMoves == b.displayedMovesCount {
+		return
+	}
+
+	b.displayedMovesCount = actualMoves
 
 	for r := 0; r < 15; r++ {
 		for c := 0; c < 15; c++ {

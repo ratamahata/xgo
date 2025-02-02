@@ -74,12 +74,8 @@ bool Cursor::forward(TMove N) {
 //=============================================================================
 bool Cursor::forward(TMove N, TNode* node) {
 
-//  if (kl[N] > 3) {//TODO
-//    return (bool)N / 0;
-//  }
 
   int x = N % 15, y = N / 15;
-
 
   //begin: forward cursor
   TByte prevVal = kl[N];
@@ -250,4 +246,8 @@ inline bool Cursor::allow(int move) {
 }
 
 
+//------------------------------------------------------------------------------
 
+int Cursor::getMovesCount() {
+  return count0 > 0 && count0<=count ? count0 : count;
+}
