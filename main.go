@@ -29,6 +29,6 @@ func main() {
 	content.Objects = []fyne.CanvasObject{appx.run(w)}
 
 	w.SetContent(content)
-	w.Resize(fyne.NewSize(480, 360))
+	w.Resize(fyne.NewSize(580, 605))
 	w.ShowAndRun()
 }

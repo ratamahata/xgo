@@ -16,20 +16,22 @@ type board struct {
 	icons               [15][15]*boardIcon
 	displayedMovesCount int
 	finished            bool
+	lastMove            *boardIcon
+	lMcoolDown          int
 }
 
 func (b *board) newClick(row, column int) {
 
 	xb := b.gb
 	xb.GridClick(column, row)
-	sync(b)
+	sync(b, true)
 
 	if b.displayedMovesCount >= 9 {
 
 		hasWinner := xb.GetRResult() >= 32600 //|| xb.ResultRecieved <= -32600
 
 		if hasWinner {
-			number := string((b.displayedMovesCount % 2) + 49) // Number 1 is ascii #49 and 2 is ascii #50.
+			number := string((b.displayedMovesCount % 2) + 48) // Number 1 is ascii #49 and 2 is ascii #50.
 			dialog.ShowInformation("Player "+number+" has won!", "Congratulations to player "+number+" for winning.", fyne.CurrentApp().Driver().AllWindows()[0])
 			b.finished = true
 		}
@@ -54,6 +56,8 @@ func (b *board) Reset() {
 		}
 	}
 
+	b.lastMove = nil
+	b.lMcoolDown = 0
 }
 
 type boardIcon struct {
@@ -83,11 +87,28 @@ func newBoardIcon(row, column int, board *board) *boardIcon {
 	return i
 }
 
-func sync(b *board) {
+func sync(b *board, isClick bool) {
+
 	xb := b.gb
 
 	actualMoves := xb.GetMovesCount()
-	if actualMoves == b.displayedMovesCount {
+	defaultSize := b.icons[0][0].Size()
+
+	if b.lastMove != nil && actualMoves >= 7 {
+
+		if b.lastMove.Size().Width < defaultSize.Width {
+			b.lastMove.Resize(b.lastMove.Size().AddWidthHeight(defaultSize.Width/10.0, defaultSize.Height/10))
+		} else {
+			if b.lMcoolDown > 0 {
+				b.lMcoolDown--
+			} else {
+				b.lastMove.Resize(b.lastMove.Size().SubtractWidthHeight(defaultSize.Width/10.0, defaultSize.Height/10))
+				b.lMcoolDown = 12
+			}
+		}
+	}
+
+	if !isClick && actualMoves == b.displayedMovesCount {
 		return
 	}
 
@@ -102,7 +123,21 @@ func sync(b *board) {
 				b.pieces[r][c] = code
 
 				if code > 0 {
-					b.icons[r][c].SetResource(theme.CancelIcon())
+
+					lastMove := b.icons[r][c]
+					lastMove.SetResource(theme.CancelIcon())
+
+					if b.lastMove != lastMove {
+
+						if b.lastMove != nil {
+							b.lastMove.Resize(defaultSize)
+						}
+						b.lastMove = lastMove
+
+						if actualMoves >= 7 {
+							b.lastMove.Resize(b.lastMove.Size().SubtractWidthHeight(defaultSize.Width*0.2, defaultSize.Height*0.2))
+						}
+					}
 				} else if code < 0 {
 					b.icons[r][c].SetResource(theme.RadioButtonIcon())
 				}
@@ -113,6 +148,6 @@ func sync(b *board) {
 
 func syncPeriodic(b *board) {
 	for range time.Tick(time.Millisecond * 400) {
-		sync(b)
+		sync(b, false)
 	}
 }

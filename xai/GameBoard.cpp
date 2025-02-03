@@ -134,6 +134,10 @@ int GameBoard::getCell(int Col, int Row) {
 };
 
 
+// x,y - user space coordinates, from 0 to 14
+//
+//returns index of kl array
+
 int GameBoard::transform(int x, int y) {
 
     if (swapX) {
@@ -149,5 +153,3 @@ int GameBoard::transform(int x, int y) {
     }
     return y*15+x;
 };
-
-
