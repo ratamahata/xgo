@@ -8,7 +8,7 @@ based on [Fyne](http://fyne.io) toolkit, pretty much on it's [tic tac toe](https
 ![image](img/itsfyne.jpg)
 
 To install,
-1. Make sure you have all required instruments installed on your system.
+1. Make sure you have all required instruments installed on your system:
 - [GoLang](https://go.dev/doc/install)
 - [SWIG](https://www.swig.org/download.html) (used to [incorporate C/C++ code into GO Lang](https://www.swig.org/Doc4.3/Go.html))
 - [GIT](https://git-scm.com/downloads)
@@ -21,7 +21,7 @@ To install,
  git version
 ```
  
-2. Clone the repo and run, or build.
+2. Clone the repo and run, or build:
 
 ```console
 git clone https://github.com/ratamahata/xgo
