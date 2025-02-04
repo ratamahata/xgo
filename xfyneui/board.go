@@ -17,31 +17,17 @@ type board struct {
 	displayedMovesCount int
 	finished            bool
 	lastMove            *boardIcon
-	lMcoolDown          int
+	lMCoolDown          int
+	expectX             bool
+	expectO             bool
 }
 
 func (b *board) newClick(row, column int) {
 
 	xb := b.gb
 	xb.GridClick(column, row)
-	sync(b, true)
-
-	if b.displayedMovesCount >= 9 {
-
-		hasWinner := xb.GetRResult() >= 32600 //|| xb.ResultRecieved <= -32600
-
-		if hasWinner {
-			number := string((b.displayedMovesCount % 2) + 48) // Number 1 is ascii #49 and 2 is ascii #50.
-			dialog.ShowInformation("Player "+number+" has won!", "Congratulations to player "+number+" for winning.", fyne.CurrentApp().Driver().AllWindows()[0])
-			b.finished = true
-		}
-
-		if b.displayedMovesCount == 225 {
-			dialog.ShowInformation("It is a tie!", "Nobody has won. Better luck next time.", fyne.CurrentApp().Driver().AllWindows()[0])
-			b.finished = true
-		}
-		return
-	}
+	b.expectO = true
+	b.expectX = true
 }
 
 func (b *board) Reset() {
@@ -57,7 +43,9 @@ func (b *board) Reset() {
 	}
 
 	b.lastMove = nil
-	b.lMcoolDown = 0
+	b.lMCoolDown = 0
+	b.expectO = false
+	b.expectX = false
 }
 
 type boardIcon struct {
@@ -87,7 +75,7 @@ func newBoardIcon(row, column int, board *board) *boardIcon {
 	return i
 }
 
-func sync(b *board, isClick bool) {
+func sync(b *board) {
 
 	xb := b.gb
 
@@ -99,21 +87,20 @@ func sync(b *board, isClick bool) {
 		if b.lastMove.Size().Width < defaultSize.Width {
 			b.lastMove.Resize(b.lastMove.Size().AddWidthHeight(defaultSize.Width/10.0, defaultSize.Height/10))
 		} else {
-			if b.lMcoolDown > 0 {
-				b.lMcoolDown--
+			if b.lMCoolDown > 0 {
+				b.lMCoolDown--
 			} else {
 				b.lastMove.Resize(b.lastMove.Size().SubtractWidthHeight(defaultSize.Width/10.0, defaultSize.Height/10))
-				b.lMcoolDown = 12
+				b.lMCoolDown = 12
 			}
 		}
 	}
 
-	if !isClick && actualMoves == b.displayedMovesCount {
+	if !b.expectX && !b.expectO && actualMoves <= b.displayedMovesCount {
 		return
 	}
 
-	b.displayedMovesCount = actualMoves
-
+	addedCount := 0
 	for r := 0; r < 15; r++ {
 		for c := 0; c < 15; c++ {
 
@@ -126,6 +113,8 @@ func sync(b *board, isClick bool) {
 
 					lastMove := b.icons[r][c]
 					lastMove.SetResource(theme.CancelIcon())
+					b.expectX = false
+					addedCount++
 
 					if b.lastMove != lastMove {
 
@@ -140,14 +129,35 @@ func sync(b *board, isClick bool) {
 					}
 				} else if code < 0 {
 					b.icons[r][c].SetResource(theme.RadioButtonIcon())
+					b.expectO = false
+					addedCount++
 				}
 			}
 		}
+	}
+
+	b.displayedMovesCount += addedCount
+
+	if b.displayedMovesCount >= 9 {
+
+		hasWinner := xb.GetRResult() >= 32600 //|| xb.ResultRecieved <= -32600
+
+		if hasWinner {
+			number := string((1 - (b.displayedMovesCount % 2)) + 49) // Number 1 is ascii #49 and 2 is ascii #50.
+			dialog.ShowInformation("Player "+number+" has won!", "Congratulations to player "+number+" for winning.", fyne.CurrentApp().Driver().AllWindows()[0])
+			b.finished = true
+		}
+
+		if b.displayedMovesCount == 225 {
+			dialog.ShowInformation("It is a tie!", "Nobody has won. Better luck next time.", fyne.CurrentApp().Driver().AllWindows()[0])
+			b.finished = true
+		}
+		return
 	}
 }
 
 func syncPeriodic(b *board) {
 	for range time.Tick(time.Millisecond * 400) {
-		sync(b, false)
+		sync(b)
 	}
 }

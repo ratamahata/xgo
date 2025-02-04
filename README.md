@@ -4,7 +4,7 @@
 
 The aim of the project is to add multi-platform UI for [X&O game](https://github.com/ratamahata/xo)
 based on [Fyne](http://fyne.io) toolkit,<br/>
-pretty much on it's [tic tac toe](https://github.com/fyne-io/examples/tree/develop/tictactoe) example
+pretty much on it's [tic tac toe](https://github.com/fyne-io/examples/tree/develop/tictactoe) example.
 
 ![image](img/itsfynecg.jpg)
 
@@ -17,13 +17,13 @@ To install,
  Also, make sure all the commands are available on your PATH:
 
 ```console
- go version
- ```
- ```console
- swig -version
- ```
- ```console
- git version
+go version
+```
+```console
+swig -version
+```
+```console
+git version
 ```
  
 2. Clone the repo and run, or build:
@@ -31,14 +31,14 @@ To install,
 ```console
 git clone https://github.com/ratamahata/xgo
 ```
- ```console
- cd xgo
+```console
+cd xgo
 ```
- ```console
+```console
 go run .
 ```
 
-The last command will build to the temporary folder and run from there. 
+The last command will build to the temporary folder and run from there.<br/>
 To build the executable for your OS in current folder, you may use:
 
 ```console

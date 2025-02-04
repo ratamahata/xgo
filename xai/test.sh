@@ -1,3 +1,4 @@
+#!/bin/bash
 #Test script, to verify correctness of C++ routines
 
 #clean previous build
@@ -23,8 +24,13 @@ mv Test.txt Test.cpp
 g++  -o testxo Test.cpp GameBoard.o Grower.o Builder.o Hashtable.o Logger.o Evaluator.o Expander.o SimplyNumbers.o Relator.o TNode.o Cursor.o
 mv Test.cpp Test.txt
 
-#run test, upon success should print success
-./testxo
+#run test, upon success should print 'success' as a last line
+RES=$(./testxo | tail -1 | xargs)
+if [[ "$RES" != "success" ]]
+then
+  echo "unexpected return ($RES)" >&2
+  exit 1
+fi
 
 #clean
 rm -f *.o
