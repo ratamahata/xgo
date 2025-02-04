@@ -18,7 +18,11 @@ To install,
 
 ```console
  go version
+ ```
+ ```console
  swig -version
+ ```
+ ```console
  git version
 ```
  
@@ -26,7 +30,11 @@ To install,
 
 ```console
 git clone https://github.com/ratamahata/xgo
-cd xgo
+```
+ ```console
+ cd xgo
+```
+ ```console
 go run .
 ```
 
