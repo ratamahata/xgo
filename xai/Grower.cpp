@@ -301,6 +301,11 @@ int Grower::getRResult(){
   return resultRecieved;
 };
 
+void Grower::moveClick() {
+
+    moveRequested = true;
+}
+
 void Grower::restartClick() {
 
     restartRequested = true;

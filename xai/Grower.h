@@ -14,6 +14,7 @@ public:
         void gridClick(int Col, int Row);
         int  getRResult();
         void restartClick();
+        void moveClick();
 
 protected:
         int userMoveRequested;

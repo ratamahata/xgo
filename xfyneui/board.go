@@ -30,11 +30,9 @@ func (b *board) newClick(row, column int) {
 	b.expectX = true
 }
 
-func (b *board) Reset() {
+func (b *board) Reset(initial bool) {
 
-	b.gb.RestartClick()
-	b.finished = false
-	b.displayedMovesCount = 0
+	actualMoves := b.gb.GetMovesCount()
 
 	for r := 0; r < 15; r++ {
 		for c := 0; c < 15; c++ {
@@ -42,10 +40,19 @@ func (b *board) Reset() {
 		}
 	}
 
-	b.lastMove = nil
-	b.lMCoolDown = 0
-	b.expectO = false
-	b.expectX = false
+	if !initial && actualMoves <= 1 {
+
+		b.gb.MoveClick()
+
+	} else {
+		b.gb.RestartClick()
+		b.finished = false
+		b.displayedMovesCount = 0
+		b.lastMove = nil
+		b.lMCoolDown = 0
+		b.expectO = false
+		b.expectX = false
+	}
 }
 
 type boardIcon struct {
@@ -143,7 +150,7 @@ func sync(b *board) {
 		hasWinner := xb.GetRResult() >= 32600 //|| xb.ResultRecieved <= -32600
 
 		if hasWinner {
-			number := string((1 - (b.displayedMovesCount % 2)) + 49) // Number 1 is ascii #49 and 2 is ascii #50.
+			number := string((b.displayedMovesCount % 2) + 49) // Number 1 is ascii #49 and 2 is ascii #50.
 			dialog.ShowInformation("Player "+number+" has won!", "Congratulations to player "+number+" for winning.", fyne.CurrentApp().Driver().AllWindows()[0])
 			b.finished = true
 		}
