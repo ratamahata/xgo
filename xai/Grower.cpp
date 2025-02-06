@@ -5,6 +5,8 @@
 
 #include "Grower.h"
 #include <cstring>
+#include <thread>
+#include <chrono>
 
 //---------------------------------------------------------------------------
 
@@ -197,6 +199,7 @@ void Grower::grow() {
           changed = false;
           ++count;
         } else {
+        std::this_thread::sleep_for(std::chrono::nanoseconds(500000000));
           if (wizardMode) {
 
               if (mediumicPlay || playMode == 2) { //Comp vs Comp
