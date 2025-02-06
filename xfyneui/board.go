@@ -20,6 +20,7 @@ type board struct {
 	lMCoolDown          int
 	expectX             bool
 	expectO             bool
+	humanX              bool //true if Human plays for X
 }
 
 func (b *board) newClick(row, column int) {
@@ -43,6 +44,7 @@ func (b *board) Reset(initial bool) {
 	if !initial && actualMoves <= 1 {
 
 		b.gb.MoveClick()
+		b.humanX = true
 
 	} else {
 		b.gb.RestartClick()
@@ -52,6 +54,7 @@ func (b *board) Reset(initial bool) {
 		b.lMCoolDown = 0
 		b.expectO = false
 		b.expectX = false
+		b.humanX = false
 	}
 }
 
@@ -114,14 +117,22 @@ func sync(b *board) {
 			code := xb.GetCell(r, c)
 
 			if b.pieces[r][c] != code {
+
 				b.pieces[r][c] = code
+				lastMove := b.icons[r][c]
 
 				if code > 0 {
-
-					lastMove := b.icons[r][c]
 					lastMove.SetResource(theme.CancelIcon())
 					b.expectX = false
 					addedCount++
+
+				} else if code < 0 {
+					lastMove.SetResource(theme.RadioButtonIcon())
+					b.expectO = false
+					addedCount++
+				}
+
+				if b.humanX == (code < 0) {
 
 					if b.lastMove != lastMove {
 
@@ -134,11 +145,8 @@ func sync(b *board) {
 							b.lastMove.Resize(b.lastMove.Size().SubtractWidthHeight(defaultSize.Width*0.2, defaultSize.Height*0.2))
 						}
 					}
-				} else if code < 0 {
-					b.icons[r][c].SetResource(theme.RadioButtonIcon())
-					b.expectO = false
-					addedCount++
 				}
+
 			}
 		}
 	}
