@@ -87,12 +87,16 @@ func newBoardIcon(row, column int, board *board) *boardIcon {
 
 func sync(b *board) {
 
+	if b.finished {
+		return
+	}
+
 	xb := b.gb
 
 	actualMoves := xb.GetMovesCount()
 	defaultSize := b.icons[0][0].Size()
 
-	if b.lastMove != nil && actualMoves >= 7 {
+	if b.lastMove != nil && actualMoves >= 7 { //visual effect for last move
 
 		if b.lastMove.Size().Width < defaultSize.Width {
 			b.lastMove.Resize(b.lastMove.Size().AddWidthHeight(defaultSize.Width/10.0, defaultSize.Height/10))
@@ -106,9 +110,9 @@ func sync(b *board) {
 		}
 	}
 
-	if !b.expectX && !b.expectO && actualMoves <= b.displayedMovesCount {
-		return
-	}
+	//if !b.expectX && !b.expectO && actualMoves <= b.displayedMovesCount {
+	//	return
+	//}
 
 	addedCount := 0
 	for r := 0; r < 15; r++ {
