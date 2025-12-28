@@ -266,15 +266,17 @@ void Grower::grow() {
 //              sprintf(msg4, movesHash->miss3 > 0 || movesHash->miss4 > 0
 //                        ? "Hash collisions %d / %d" : "\0\0", movesHash->miss3, movesHash->miss4);
 
-/*
-              double updateFreq = TNode::updatesCount
+              double updateFreq = TNode::updatesCount || TNode::skippedCount
                         ? 100 * TNode::updatesCount / (double)(TNode::updatesCount + TNode::skippedCount)
                         : 0;
-              sprintf(msg5, "Dev: %.3f%% : %d / %d",
+              sprintf(msg5, "Dev: %.3f%% : %d [%d / %d] [%d / %d]",
                         updateFreq,
+                        (int)TNode::maxUpdated,
+                        (int)TNode::updatesCount,
+                        (int)TNode::skippedCount,
                         (int)TNode::avgDiff,
-                        (int)TNode::avgSquareDiff);
-*/
+                        (int)TNode::avgSquareDiff
+                        );
 
 /* TODO
               if (xo != NULL) {
@@ -330,4 +332,29 @@ Grower* getXBoard(int gameMode) {
         xo->logger = logger;
     }
     return xo;
+};
+
+//------------------------
+char* Grower::getMsg1() {
+  return msg1;
+};
+
+char* Grower::getMsg2() {
+  return msg2;
+};
+
+char* Grower::getMsg3() {
+  return msg3;
+};
+
+char* Grower::getMsg4() {
+  return msg4;
+};
+
+char* Grower::getMsg5() {
+  return msg5;
+};
+
+char* Grower::getMsgStatus() {
+  return msgStatus;
 };

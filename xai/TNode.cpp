@@ -1,5 +1,13 @@
 #include "TNode.h"
 
+// Define and optionally initialize the static members
+volatile double TNode::avgDiff = 0.0;
+volatile double TNode::avgSquareDiff = 0.0;
+volatile long long TNode::updatesCount = 13;
+volatile long long TNode::skippedCount = 0;
+volatile long long TNode::maxUpdated = 0;
+volatile TNode* TNode::first = NULL;
+
 TNode::TNode() {
     totalChilds = 0;
     rating = 0;
@@ -9,6 +17,7 @@ TNode::TNode() {
     x2 = x3 = x4 = o2 = o3 = o4 = 0;
     fixedRating = false;
     next = 0;
+    if (first == NULL) first = this;
 };
 
 
@@ -128,7 +137,7 @@ int TNode::ratingToTotalChilds() {
 
 
 //==================================================================
-
+#define MANY_CHILDS 3000
 void TNode::update(short int newRating, unsigned int addedChilds) {
     totalChilds += addedChilds;
 
@@ -136,19 +145,20 @@ void TNode::update(short int newRating, unsigned int addedChilds) {
 
         if (rating == 0) {
             rating = newRating;
-        } else if ((rating <= - 16000 && newRating > rating) ||
-                (rating >= 16000 && newRating < rating)) {
+//        } else if ((rating <= - 16000 && newRating > rating) ||
+//                (rating >= 16000 && newRating < rating)) {
                 //suppress decreasing of rating
 //                if (totalChilds > 150000) {
 //                        ++TNode::skippedCount;
 //                }
         } else {
-                if (totalChilds > 150000) {
-                    double diff = (newRating - rating)*100.0;
+                if (this==first){//
+                    double diff = (newRating - rating);
                     double sqDiff = diff > 0 ? diff : -diff;
-//                    avgDiff = (avgDiff*updatesCount + diff)/(updatesCount+1);
-//                    avgSquareDiff = (avgSquareDiff*updatesCount + sqDiff)/(updatesCount+1);
-//                    ++updatesCount;
+                    avgDiff = (avgDiff*updatesCount + diff)/(updatesCount+1);
+                    avgSquareDiff = (avgSquareDiff*updatesCount + sqDiff)/(updatesCount+1);
+                    ++updatesCount;
+                    maxUpdated = totalChilds;
                 }
 
                 if (newRating > 16384) {
@@ -167,8 +177,8 @@ void TNode::update(short int newRating, unsigned int addedChilds) {
                 }
         }
     } else {
-        if (totalChilds > 150000) {
-//                ++skippedODCount;
+        if (this==first){//totalChilds > MANY_CHILDS) {
+                ++skippedCount;
         }
     }
 };

@@ -16,6 +16,13 @@ public:
         void restartClick();
         void moveClick();
 
+        char* getMsg1();
+        char* getMsg2();
+        char* getMsg3();
+        char* getMsg4();
+        char* getMsg5();
+        char* getMsgStatus();
+
 protected:
         int userMoveRequested;
         int resultRecieved;

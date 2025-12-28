@@ -56,7 +56,7 @@ void Relator::updateParents(int addedChilds) {
 //=============================================================================
 //Private recursive method, used to update parent nodes of "node" by stages:
 //"depth" parameter sets which parent level to update (0-parents, 1-grandparents and so on)
-//"removed" parameter sets a number of moves that was virually removed when calculating parent
+//"removed" parameter sets a number of moves that was virtually removed when calculating parent
 //"max" - maximum removable index
 void Relator::updateParents(TNode *node, int removed, int removedFromEnd,
                 bool onlyLastRemoved, bool updateRating, int max, int addedChilds) {
@@ -135,7 +135,9 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
 
         if (node->rating != -max_rating) {
             TRating absRatingOld = node->rating;
-            TRating absRating = node->rating = -max_rating;
+            node->update(-max_rating, addedChilds);
+
+            TRating absRating = -max_rating;
 
             if (node->totalChilds >= BIG_PARENT) {
                 if (absRatingOld < 0) absRatingOld = -absRatingOld;
@@ -153,8 +155,11 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
                         }
                 }
             }
-            ratingUpdated = true;
+
+            return ratingUpdated = true;
         }
+        node->update(-max_rating, addedChilds);
+        return false;
     }
     node->totalChilds += addedChilds;
     return ratingUpdated;

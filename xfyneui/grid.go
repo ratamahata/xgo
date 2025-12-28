@@ -9,10 +9,8 @@ import (
 )
 
 // Show loads a tic-tac-toe example window for the specified app context
-func Show(win fyne.Window) fyne.CanvasObject {
-
+func Show(win fyne.Window, sd *StatusController) fyne.CanvasObject {
 	gb := xai.GetXBoard(0)
-
 	go gb.Grow()
 
 	board := &board{gb: gb}
@@ -33,7 +31,9 @@ func Show(win fyne.Window) fyne.CanvasObject {
 	})
 
 	board.Reset(true)
-	go syncPeriodic(board)
+
+	// PASS the status controller to your periodic function
+	go syncPeriodic(board, sd)
 
 	return container.NewBorder(reset, nil, nil, nil, grid)
 }
