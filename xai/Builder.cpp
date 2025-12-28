@@ -65,68 +65,73 @@ void Builder::buildTree() {
 
 //==================================================================
 
-int Builder::chooseNodeToExpand() {
-  //TNode *cursor = current()->node;
-  float f0 = -99999;
-//  float f01 = -99999;
-
-  int choosen = -1;
-//  int choosen1 = -1;
-  //int choosen1prev = -1;
-
-  calculateChilds();
-//  do {
-        for (int i = 0; i < childs.count; ++i) {
-            TNode *node = childs.node[i];
-            if (node->rating <= - 32300 || node->rating >= 32300)
-                continue;
-
-            int ttc = node->ratingToTotalChilds();
-            int ret = (node->totalChilds > 60000) ? ttc*ttc : ttc;
-            float f = ret/ (float)(50+node->totalChilds);
-//            if (node->totalChilds > 500000) {
-//                f = f*ttc;
-//            }
-            if (f > f0 || f0 == -99999) {
-              choosen = i;
-              f0 = f;
-            }
-//            if (ret > f01) {
-//                choosen1prev = choosen1;
-//                choosen1 = i;
-//                f01 = ret;
-//            }
-        }
-//          if (choosen1->node->rating < 10000 && choosen1->node->rating > -10000 && !(first->node->totalChilds % 5)) {
-//                        if (choosen1prev != NULL && choosen1prev->node->rating < 10000 && choosen1prev->node->rating > -10000) {
-//                                double f1prev = choosen1prev->node->ratingToTotalChilds(first->node) / (double)(1+choosen1prev->node->totalChilds);
-//                                double f1 = choosen1->node->ratingToTotalChilds(first->node) / (double)(1+choosen1->node->totalChilds);
-//                                choosen = f1 >= f1prev ? choosen1 : choosen1prev;
-//                        } else {
-//                                choosen = choosen1;
-//                        }
-//          }
-
-//          if (cursorLink->node != lastmove) {
-//                if (choosen->node->rating >= 32300 || choosen->node->rating <= -32300) {
-//                    //bad situation
-//                    //we add 10 more fake childs to such node, so it does not want to expand more..
-//                    if (lastmove->rating < 32300 && lastmove->rating > -32300) {
-//                            updatedParentsCounter = 0;
-//                            updateNode(choosen->node, 10);
-//                    }
-//                    continue;
-//                }
+//int Builder::chooseNodeToExpand() {
+//
+//  float f0 = -99999;
+//  int choosen = -1;
+//  calculateChilds();
+//
+//  for (int i = 0; i < childs.count; ++i) {
+//        TNode *node = childs.node[i];
+////            if (node->rating <= - 32300 || node->rating >= 32300)
+////                continue;
+//
+//        int ttc = node->ratingToTotalChilds();
+//        int ret = (node->totalChilds > 60000) ? ttc*ttc : ttc;
+//        float f = ret/ (float)(50+node->totalChilds);
+//        if (f > f0 || f0 == -99999) {
+//          choosen = i;
+//          f0 = f;
 //        }
 //  }
-//  while(false);
+//  return choosen;
+//};
 
-  if (choosen == -1) {
-        return -1;
-  }
 
-  return choosen;
-};
+int Builder::chooseNodeToExpand() {
+
+    calculateChilds();
+    if (childs.count == 0) return -1;
+
+    // 1. Calculate total children across all branches
+    int totalAllChilds = 0;
+    for (int i = 0; i < childs.count; ++i) {
+        totalAllChilds += childs.node[i]->totalChilds;
+    }
+
+    float maxUrgency = -1e9f;
+    int chosen = -1;
+
+    // 2. For each node, determine its rank by rating
+    // Higher rating = lower rank (0 is highest)
+    for (int i = 0; i < childs.count; ++i) {
+        TNode *node = childs.node[i];
+
+        int rank = 0;
+        for (int j = 0; j < childs.count; ++j) {
+            if (childs.node[j]->rating > node->rating) {
+                rank++;
+            }
+        }
+
+        // 3. Calculate target percentage: 50% for rank 0, 25% for rank 1, etc.
+        // Target = totalAllChilds * (0.5 ^ (rank + 1))
+        float targetPercent = 1.0f / (float)(1 << (rank + 1));
+        float targetChilds = (float)totalAllChilds * targetPercent;
+
+        // 4. Calculate urgency: how many nodes are we missing compared to the target?
+        // We add a small constant (50) to the denominator to prevent over-expansion
+        // of new nodes with very small totalChilds.
+        float urgency = (targetChilds - node->totalChilds) / (float)(50 + node->totalChilds);
+
+        if (urgency > maxUrgency || chosen == -1) {
+            maxUrgency = urgency;
+            chosen = i;
+        }
+    }
+
+    return chosen;
+}
 
 //==================================================================
 
