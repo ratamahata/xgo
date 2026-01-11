@@ -19,10 +19,16 @@ class Logger {
 
   public:
 
-        int bigParentsCulled1;
-        int bigParentsCulled2;
-        int bigGrandParentsCulled1;
-        int bigGrandParentsCulled2;
+        int parents1Culled1;
+        int parents1Culled2;
+        int parents2Culled1;
+        int parents2Culled2;
+        int parents3Culled1;
+        int parents3Culled2;
+        int parents4Culled1;
+        int parents4Culled2;
+        int parents5Culled1;
+        int parents5Culled2;
 
         Logger();
         void hit();

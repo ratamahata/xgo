@@ -17,10 +17,17 @@ Logger::Logger() {
         lastError = NULL;
         expandEven = 0;
         expandOdd = 0;
-        bigParentsCulled1 = 0;
-        bigParentsCulled2 = 0;
-        bigGrandParentsCulled1 = 0;
-        bigGrandParentsCulled2 = 0;
+
+        parents1Culled1 = 0;
+        parents1Culled2 = 0;
+        parents2Culled1 = 0;
+        parents2Culled2 = 0;
+        parents3Culled1 = 0;
+        parents3Culled2 = 0;
+        parents4Culled1 = 0;
+        parents4Culled2 = 0;
+        parents5Culled1 = 0;
+        parents5Culled2 = 0;
 }
 
 void Logger::hit() {
@@ -56,7 +63,10 @@ void Logger::printLastError(char *buffer) {
         //sprintf(buffer, "%d ", (expandEven*100 / (1+expandOdd + expandEven)));
 
         if (lastError == NULL) {
-        sprintf(buffer, "%d/%d/%d/%d", bigParentsCulled1, bigParentsCulled2, bigGrandParentsCulled1, bigGrandParentsCulled2);
+        sprintf(buffer, "%d/%d/%d/%d/%d - %d/%d/%d/%d/%d",
+                parents1Culled1, parents2Culled1, parents3Culled1, parents4Culled1, parents5Culled1,
+                parents1Culled2, parents2Culled2, parents3Culled2, parents4Culled2, parents5Culled2
+        );
         } else {
 
         sprintf(buffer,

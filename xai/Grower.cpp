@@ -266,7 +266,7 @@ void Grower::grow() {
 //              sprintf(msg4, movesHash->miss3 > 0 || movesHash->miss4 > 0
 //                        ? "Hash collisions %d / %d" : "\0\0", movesHash->miss3, movesHash->miss4);
 
-              double updateFreq = TNode::updatesCount || TNode::skippedCount
+              double updateFreq = (TNode::updatesCount || TNode::skippedCount)
                         ? 100 * TNode::updatesCount / (double)(TNode::updatesCount + TNode::skippedCount)
                         : 0;
               sprintf(msg5, "Dev: %.3f%% : %d [%d / %d] [%d / %d]",

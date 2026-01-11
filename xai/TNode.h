@@ -13,10 +13,16 @@ typedef unsigned char TByte;
 typedef TByte TMove;
 typedef uint32_t THash;
 #define THASH_MAX 4294967295U //ULONG_MAX from <limits.h>
-#define BIG_PARENT 500
-#define BIG_GRAND_PARENT 5000
-#define CULL_RATING1 10000
-#define CULL_RATING2 20000
+
+#define BIG_PARENT1    400
+#define BIG_PARENT2   2000
+#define BIG_PARENT3  10000
+#define BIG_PARENT4  50000
+#define BIG_PARENT5 250000
+
+#define CULL_RATING1 8000
+#define CULL_RATING2 16000
+
 typedef signed short int TRating;
 
     class TNode {
