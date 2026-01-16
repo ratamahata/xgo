@@ -56,7 +56,7 @@ void Relator::updateParents(int addedChilds) {
 //=============================================================================
 //Private recursive method, used to update parent nodes of "node" by stages:
 //"depth" parameter sets which parent level to update (0-parents, 1-grandparents and so on)
-//"removed" parameter sets a number of moves that was virually removed when calculating parent
+//"removed" parameter sets a number of moves that was virtually removed when calculating parent
 //"max" - maximum removable index
 void Relator::updateParents(TNode *node, int removed, int removedFromEnd,
                 bool onlyLastRemoved, bool updateRating, int max, int addedChilds) {
@@ -133,28 +133,46 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
                 //updateNode(node, from, updateRating, addedChilds, removedFromEnd);
         } */
 
+        if (max_rating < -27000) max_rating += 1;
+        else if (max_rating > 27000) max_rating -= 1;
+
         if (node->rating != -max_rating) {
-            TRating absRatingOld = node->rating;
-            TRating absRating = node->rating = -max_rating;
+            TRating ratingOld = node->rating;
+            node->update(-max_rating, addedChilds);
 
-            if (node->totalChilds >= BIG_PARENT) {
-                if (absRatingOld < 0) absRatingOld = -absRatingOld;
-                if (absRating < 0) absRating = -absRating;
+            if (node->totalChilds >= BIG_PARENT1) {
 
-                if (absRatingOld < CULL_RATING1 && absRating >= CULL_RATING1) {
-                        ++logger->bigParentsCulled1;
-                        if (node->totalChilds >= BIG_GRAND_PARENT) {
-                                ++logger->bigGrandParentsCulled1;
-                        }
-                } else if (absRatingOld < CULL_RATING2 && absRating >= CULL_RATING2) {
-                        ++logger->bigParentsCulled2;
-                        if (node->totalChilds >= BIG_GRAND_PARENT) {
-                                ++logger->bigGrandParentsCulled2;
-                        }
+                if (ratingOld > -CULL_RATING2 && max_rating >= CULL_RATING2) {
+                    if (node->totalChilds >= BIG_PARENT5) {
+                       ++logger->parents5Culled2;
+                    } else if (node->totalChilds >= BIG_PARENT4) {
+                       ++logger->parents4Culled2;
+                    } else if (node->totalChilds >= BIG_PARENT3) {
+                       ++logger->parents3Culled2;
+                    } else if (node->totalChilds >= BIG_PARENT2) {
+                       ++logger->parents2Culled2;
+                    } else  {
+                       ++logger->parents1Culled2;
+                    }
+                } else if (ratingOld > -CULL_RATING1 && max_rating >= CULL_RATING1) {
+                    if (node->totalChilds >= BIG_PARENT5) {
+                       ++logger->parents5Culled1;
+                    } else if (node->totalChilds >= BIG_PARENT4) {
+                       ++logger->parents4Culled1;
+                    } else if (node->totalChilds >= BIG_PARENT3) {
+                       ++logger->parents3Culled1;
+                    } else if (node->totalChilds >= BIG_PARENT2) {
+                       ++logger->parents2Culled1;
+                    } else  {
+                       ++logger->parents1Culled1;
+                    }
                 }
             }
-            ratingUpdated = true;
+
+            return ratingUpdated = true;
         }
+        node->update(-max_rating, addedChilds);
+        return false;
     }
     node->totalChilds += addedChilds;
     return ratingUpdated;

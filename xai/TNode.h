@@ -5,6 +5,7 @@
 #include "TNode.h"
 
 #include <stdint.h>
+#include <cstddef>
 
 //#define NULL 0
 
@@ -12,17 +13,25 @@ typedef unsigned char TByte;
 typedef TByte TMove;
 typedef uint32_t THash;
 #define THASH_MAX 4294967295U //ULONG_MAX from <limits.h>
-#define BIG_PARENT 200
-#define BIG_GRAND_PARENT 10000
-#define CULL_RATING1 10000
-#define CULL_RATING2 20000
+
+#define BIG_PARENT1   4000
+#define BIG_PARENT2   7000
+#define BIG_PARENT3  10000
+#define BIG_PARENT4  16000
+#define BIG_PARENT5  26000
+
+#define CULL_RATING1 8000
+#define CULL_RATING2 16000
+
 typedef signed short int TRating;
 
     class TNode {
       public:
-//      static double avgDiff, avgSquareDiff;
-//      static long long updatesCount;
-//      static long long skippedCount;
+      volatile static double avgDiff, avgSquareDiff;
+      volatile static long long updatesCount;
+      volatile static long long skippedCount;
+      volatile static long long maxUpdated;
+      volatile static TNode* first;
 
       TNode();
       void update(short int newRating, unsigned int addedChilds);

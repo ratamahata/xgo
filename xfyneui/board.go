@@ -85,14 +85,31 @@ func newBoardIcon(row, column int, board *board) *boardIcon {
 	return i
 }
 
-func sync(b *board) {
+func sync(b *board, sd *StatusController) {
+
+	if b.finished {
+		return
+	}
+
+	// Example of updating from outside in main.go
+	//go func() {
+	//	statusData.Lines[0].Set("Game Engine Ready")
+	//	statusData.Lines[1].Set("Connected to Server")
+	//}()
 
 	xb := b.gb
 
 	actualMoves := xb.GetMovesCount()
+
+	sd.UpdateStatus(0, xb.GetMsg1())
+	sd.UpdateStatus(1, xb.GetMsg2())
+	sd.UpdateStatus(2, xb.GetMsg3())
+	sd.UpdateStatus(3, xb.GetMsg4())
+	sd.UpdateStatus(4, xb.GetMsg5())
+
 	defaultSize := b.icons[0][0].Size()
 
-	if b.lastMove != nil && actualMoves >= 7 {
+	if b.lastMove != nil && actualMoves >= 7 { //visual effect for last move
 
 		if b.lastMove.Size().Width < defaultSize.Width {
 			b.lastMove.Resize(b.lastMove.Size().AddWidthHeight(defaultSize.Width/10.0, defaultSize.Height/10))
@@ -106,9 +123,9 @@ func sync(b *board) {
 		}
 	}
 
-	if !b.expectX && !b.expectO && actualMoves <= b.displayedMovesCount {
-		return
-	}
+	//if !b.expectX && !b.expectO && actualMoves <= b.displayedMovesCount {
+	//	return
+	//}
 
 	addedCount := 0
 	for r := 0; r < 15; r++ {
@@ -171,8 +188,8 @@ func sync(b *board) {
 	}
 }
 
-func syncPeriodic(b *board) {
+func syncPeriodic(b *board, sd *StatusController) {
 	for range time.Tick(time.Millisecond * 400) {
-		sync(b)
+		sync(b, sd)
 	}
 }
