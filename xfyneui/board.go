@@ -1,14 +1,18 @@
 package xfyneui
 
 import (
+	"time"
+
+	"image/color"
+
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"time"
+	"github.com/ratamahata/xgo/xai"
 )
-
-import "github.com/ratamahata/xgo/xai"
 
 type board struct {
 	gb                  xai.Grower
@@ -73,16 +77,22 @@ func (i *boardIcon) Tapped(ev *fyne.PointEvent) {
 }
 
 func (i *boardIcon) Reset() {
-	i.SetResource(theme.ViewFullScreenIcon())
 
+	i.SetResource(nil)
+	i.Refresh()
 }
 
-func newBoardIcon(row, column int, board *board) *boardIcon {
+func newBoardIcon(row, column int, board *board) fyne.CanvasObject {
+
 	i := &boardIcon{board: board, row: row, column: column}
-	i.SetResource(theme.ViewFullScreenIcon())
 	i.ExtendBaseWidget(i)
+	i.SetResource(nil)
+	rect := canvas.NewRectangle(color.Transparent)
+	rect.StrokeColor = color.White
+	rect.StrokeWidth = 1
 	board.icons[row][column] = i
-	return i
+	return container.NewStack(rect, i)
+
 }
 
 func sync(b *board, sd *StatusController) {
