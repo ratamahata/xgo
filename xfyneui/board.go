@@ -88,7 +88,7 @@ func newBoardIcon(row, column int, board *board) fyne.CanvasObject {
 	i.ExtendBaseWidget(i)
 	i.SetResource(nil)
 	rect := canvas.NewRectangle(color.Transparent)
-	rect.StrokeColor = color.White
+	rect.StrokeColor = theme.ForegroundColor()
 	rect.StrokeWidth = 1
 	board.icons[row][column] = i
 	return container.NewStack(rect, i)
