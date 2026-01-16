@@ -1,7 +1,10 @@
 package xfyneui
 
 import (
+	// "image/color"
+
 	"fyne.io/fyne/v2"
+	// "fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -23,8 +26,10 @@ func Show(win fyne.Window, sd *StatusController) fyne.CanvasObject {
 	}
 
 	reset := widget.NewButtonWithIcon("Reset Board", theme.ViewRefreshIcon(), func() {
-		for i := range grid.Objects {
-			grid.Objects[i].(*boardIcon).Reset()
+		for _, obj := range grid.Objects {
+			stack := obj.(*fyne.Container)
+			icon := stack.Objects[1].(*boardIcon)
+			icon.Reset()
 		}
 
 		board.Reset(false)
