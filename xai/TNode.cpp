@@ -3,7 +3,7 @@
 // Define and optionally initialize the static members
 volatile double TNode::avgDiff = 0.0;
 volatile double TNode::avgSquareDiff = 0.0;
-volatile long long TNode::updatesCount = 13;
+volatile long long TNode::updatesCount = 0;
 volatile long long TNode::skippedCount = 0;
 volatile long long TNode::maxUpdated = 0;
 volatile TNode* TNode::first = NULL;
