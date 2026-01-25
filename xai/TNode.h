@@ -14,11 +14,11 @@ typedef TByte TMove;
 typedef uint32_t THash;
 #define THASH_MAX 4294967295U //ULONG_MAX from <limits.h>
 
-#define BIG_PARENT1   4000
-#define BIG_PARENT2   7000
-#define BIG_PARENT3  10000
-#define BIG_PARENT4  16000
-#define BIG_PARENT5  26000
+#define BIG_PARENT1    9000
+#define BIG_PARENT2   18000
+#define BIG_PARENT3   36000
+#define BIG_PARENT4   72000
+#define BIG_PARENT5  144000
 
 #define CULL_RATING1 8000
 #define CULL_RATING2 16000

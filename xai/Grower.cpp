@@ -26,7 +26,7 @@ Grower::Grower(SimplyNumbers *simplyGen, Hashtable *movesHash,
 
 #define MAX_CHILDS_WIZARD  40000000
 
-#define MAX_CHILD_PER_MOVE_ZONE0  6000000
+#define MAX_CHILD_PER_MOVE_ZONE0  30000000 //30m
 #define MAX_CHILD_PER_MOVE_ZONE1  1000000
 
 #define MAX_CHILD_DECREASE_FACTOR 6
