@@ -161,12 +161,12 @@ void TNode::update(short int newRating, unsigned int addedChilds) {
                     maxUpdated = totalChilds;
                 }
 
-                if (newRating > 16384) {
-                        rating = newRating - 1;
-                } else if (newRating < -16384) {
-                        rating = newRating + 1;
-//                } else if (totalChilds < 50000) {
-                } else {
+//                if (newRating > 16384) {
+//                        rating = newRating - 1;
+//                } else if (newRating < -16384) {
+//                        rating = newRating + 1;
+////                } else if (totalChilds < 50000) {
+//                } else {
                         if (!fixedRating) {
                                 rating = newRating;
                         }
@@ -174,7 +174,7 @@ void TNode::update(short int newRating, unsigned int addedChilds) {
 //                        rating = (short int)floor(0.5 + 0.99*newRating + 0.01*rating);
 //                } else {
 //                        rating = (short int)floor(0.5 + 0.98*newRating + 0.02*rating);
-                }
+//                }
         }
     } else {
         if (this==first){//totalChilds > MANY_CHILDS) {
