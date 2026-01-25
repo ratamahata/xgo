@@ -133,8 +133,8 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
                 //updateNode(node, from, updateRating, addedChilds, removedFromEnd);
         } */
 
-//        if (max_rating < -16384) max_rating += 1;
-//        else if (max_rating > 16384) max_rating -= 1;
+        if (max_rating < -5000) max_rating += 1;
+        else if (max_rating > 5000) max_rating -= 1;
 
         if (node->rating != -max_rating) {
             TRating ratingOld = node->rating;
