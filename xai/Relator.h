@@ -5,6 +5,7 @@
 //---------------------------------------------------------------------------
 #include "Evaluator.h"
 #include "TNode.h"
+#include "Persister.h"
 
 class MovesBucket {
         public:
@@ -25,6 +26,8 @@ class Relator : public Evaluator {
         Relator(SimplyNumbers*, Hashtable* );
 
         MovesBucket newChilds;
+        Persister *persister;
+
         TNode* getChild(TNode *parent, TMove childMove);
         void findMovesToExpand();
         RelativeBucket getParents(TNode *node);

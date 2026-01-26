@@ -1,14 +1,14 @@
 
 
 start: run
-	@echo "Start suka start.."
+	@echo "Start.."
 	echo $(PATH)
 	go version
 	go run .
 
 # .PHONY: start
 # run:
-# 	@echo "Run suka run..."
+# 	@echo "Run..."
 # 	echo $(PATH)
 #	go run 
 

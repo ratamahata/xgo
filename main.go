@@ -1,8 +1,13 @@
+/*
+#cgo CXXFLAGS: -std=c++11
+#cgo LDFLAGS: -lstdc++
+*/
 //go:generate fyne bundle -o data.go Icon.png
 
 package main
 
 import (
+	"C"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"

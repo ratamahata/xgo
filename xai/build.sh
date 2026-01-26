@@ -9,13 +9,14 @@ rm xai_wrap.c
 #Compile the C/C++ code explicitly as 32-bit using the -m32 flag:
 
 g++ -m32 -std=c++11 -o TNode.o -c TNode.cpp
+g++ -m32 -std=c++11 -o Persister.o -c Persister.cpp
+g++ -m32 -o Logger.o -c Logger.cpp
+g++ -m32 -o Hashtable.o -c Hashtable.cpp
 g++ -m32 -std=c++11 -o Cursor.o -c Cursor.cpp
 g++ -m32 -o Relator.o -c Relator.cpp
 g++ -m32 -o SimplyNumbers.o -c SimplyNumbers.cpp
 g++ -m32 -o Expander.o -c Expander.cpp
 g++ -m32 -o Evaluator.o -c Evaluator.cpp
-g++ -m32 -o Logger.o -c Logger.cpp
-g++ -m32 -o Hashtable.o -c Hashtable.cpp
 g++ -m32 -o Builder.o -c Builder.cpp
 g++ -m32 -o Grower.o -c Grower.cpp
 g++ -m32 -o GameBoard.o -c GameBoard.cpp

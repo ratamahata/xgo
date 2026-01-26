@@ -9,7 +9,10 @@
 
 #pragma package(smart_init)
 
-Relator::Relator(SimplyNumbers* sn, Hashtable* ht) : Evaluator(sn, ht){};
+Relator::Relator(SimplyNumbers* sn, Hashtable* ht) : Evaluator(sn, ht){
+
+    persister = new Persister();
+};
 
 TNode* Relator::getChild(TNode *parent, TMove childMove) {
    THash hashCodeX = parent->hashCodeO;
@@ -143,6 +146,8 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
             if (node->totalChilds >= BIG_PARENT1) {
 
                 if (ratingOld > -CULL_RATING2 && max_rating >= CULL_RATING2) {
+
+                    persister->save(node);
                     if (node->totalChilds >= BIG_PARENT5) {
                        ++logger->parents5Culled2;
                     } else if (node->totalChilds >= BIG_PARENT4) {
@@ -155,6 +160,8 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
                        ++logger->parents1Culled2;
                     }
                 } else if (ratingOld > -CULL_RATING1 && max_rating >= CULL_RATING1) {
+
+                    persister->save(node);
                     if (node->totalChilds >= BIG_PARENT5) {
                        ++logger->parents5Culled1;
                     } else if (node->totalChilds >= BIG_PARENT4) {
