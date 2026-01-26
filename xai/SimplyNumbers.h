@@ -17,6 +17,9 @@ public:
     void init(); // Load existing state from file
 
     SimplyNumbers();
+
+private:
+    bool isInit;
 };
 
 #endif

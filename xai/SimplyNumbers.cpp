@@ -4,11 +4,13 @@
 #include <iostream>
 
 SimplyNumbers::SimplyNumbers() {
+    isInit = true;
     memset(hashValues, 0, sizeof(unsigned long) * 225);
     memset(simplyNumbers, 0, sizeof(unsigned long) * 225);
     simplyCounter = -1; // Initialize to -1 so first prime is at index 0
 
     init(); // Populate hashValues from file immediately
+    isInit = false;
 }
 
 void SimplyNumbers::init() {
@@ -58,12 +60,14 @@ unsigned long SimplyNumbers::getHash(TMove move) {
         hashValues[move] = next;
         b = next;
 
-        // Persist the move to the file only if it's a new assignment
-        // (Prevents duplicates during the init() loop itself)
-        std::ofstream fout(PRIMES_FILE, std::ios::app);
-        if (fout.is_open()) {
-            fout << (int)move << ", ";
-            fout.close();
+        if (!isInit) {
+            // Persist the move to the file only if it's a new assignment
+            // (Prevents duplicates during the init() loop itself)
+            std::ofstream fout(PRIMES_FILE, std::ios::app);
+            if (fout.is_open()) {
+                fout << (int)move << ", ";
+                fout.close();
+            }
         }
     }
 
