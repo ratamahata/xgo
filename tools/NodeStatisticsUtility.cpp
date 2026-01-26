@@ -1,3 +1,6 @@
+#include <set>
+#include <cstdint> // For uint64_t
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -7,6 +10,58 @@
 
 class NodeStatisticsUtility {
 public:
+
+    void checkUniqueness() {
+        const char* fileName = "xo.dat";
+        std::ifstream inFile(fileName, std::ios::binary);
+
+        if (!inFile.is_open()) {
+            std::cerr << "Error: Could not open " << fileName << " for uniqueness check." << std::endl;
+            return;
+        }
+
+        // Use a set to store the 64-bit combined hash (hashCodeX + hashCodeO)
+        std::set<uint64_t> seenHashes;
+
+        THash hX, hO;
+        TByte dummy; // To skip unused fields
+        TByte age, x3, x4, o3, o4;
+        TRating rating;
+
+        size_t nodeCount = 0;
+        size_t errorCount = 0;
+
+        while (inFile.read(reinterpret_cast<char*>(&hX), sizeof(hX))) {
+            inFile.read(reinterpret_cast<char*>(&hO), sizeof(hO));
+
+            // Skip other fields to get to the next record
+            inFile.read(reinterpret_cast<char*>(&dummy), 1); // dummyZero
+            inFile.read(reinterpret_cast<char*>(&age), 1);
+            inFile.read(reinterpret_cast<char*>(&x3), 1);
+            inFile.read(reinterpret_cast<char*>(&x4), 1);
+            inFile.read(reinterpret_cast<char*>(&o3), 1);
+            inFile.read(reinterpret_cast<char*>(&o4), 1);
+            inFile.read(reinterpret_cast<char*>(&rating), sizeof(rating));
+
+            // Combine two 32-bit hashes into one 64-bit key for the set
+            uint64_t combinedHash = (static_cast<uint64_t>(hX) << 32) | hO;
+
+            // insert() returns a pair; second is false if element already existed
+            if (!seenHashes.insert(combinedHash).second) {
+                if (errorCount < 5) {
+                    std::cerr << "Error: Duplicate hash combination found!" << std::endl;
+                    std::cerr << "Duplicate: hashCodeX=" << hX << ", hashCodeO=" << hO
+                              << " at node index " << nodeCount << std::endl;
+                }
+                errorCount++;
+            }
+            nodeCount++;
+        }
+
+        inFile.close();
+        std::cout << "nodes total: " << nodeCount << "  duplicates: " << errorCount << std::endl;
+    }
+
     void processFile() {
         const char* fileName = "xo.dat";
         std::ifstream inFile(fileName, std::ios::binary);
@@ -73,6 +128,7 @@ public:
 
 int main() {
     NodeStatisticsUtility util;
+    util.checkUniqueness();
     util.processFile();
     return 0;
 }

@@ -143,10 +143,11 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
             TRating ratingOld = node->rating;
             node->update(-max_rating, addedChilds);
 
-            if (node->totalChilds >= BIG_PARENT1) {
+            if (node->totalChilds >= BIG_PARENT1 && !node->fixedRating) {
 
                 if (ratingOld > -CULL_RATING2 && max_rating >= CULL_RATING2) {
 
+                    node->fixedRating = true;
                     persister->save(node);
                     if (node->totalChilds >= BIG_PARENT5) {
                        ++logger->parents5Culled2;
@@ -161,6 +162,7 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
                     }
                 } else if (ratingOld > -CULL_RATING1 && max_rating >= CULL_RATING1) {
 
+                    node->fixedRating = true;
                     persister->save(node);
                     if (node->totalChilds >= BIG_PARENT5) {
                        ++logger->parents5Culled1;
