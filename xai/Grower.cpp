@@ -18,6 +18,7 @@ Grower::Grower(SimplyNumbers *simplyGen, Hashtable *movesHash,
     bool isCreated;
     TNode *node = movesHash->getOrCreate(1, 1, 0, isCreated);
 
+    userMoveRequested = 255;
     forward(112, node);
     expand();
 };
