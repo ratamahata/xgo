@@ -1,17 +1,30 @@
-#pragma hdrstop
-
 #include "SimplyNumbers.h"
 #include <memory.h>
-#include <fstream> // Required for writing to primes.txt
+#include <fstream>
+#include <iostream>
 
 SimplyNumbers::SimplyNumbers() {
     memset(hashValues, 0, sizeof(unsigned long) * 225);
     memset(simplyNumbers, 0, sizeof(unsigned long) * 225);
-    simplyCounter = 0;
-}
-//==================================================================
+    simplyCounter = -1; // Initialize to -1 so first prime is at index 0
 
-//returns next simply number, unique for each move
+    init(); // Populate hashValues from file immediately
+}
+
+void SimplyNumbers::init() {
+    std::ifstream fin(PRIMES_FILE);
+    if (!fin.is_open()) return;
+
+    int moveValue;
+    char comma;
+    // Read moves from file and pass them to getHash to reconstruct state
+    while (fin >> moveValue) {
+        getHash((TMove)moveValue);
+        fin >> comma; // consume the comma
+    }
+    fin.close();
+}
+
 unsigned long SimplyNumbers::getExistingHash(TMove move) {
     return hashValues[move];
 }
@@ -19,21 +32,17 @@ unsigned long SimplyNumbers::getExistingHash(TMove move) {
 unsigned long SimplyNumbers::getHash(TMove move) {
     unsigned long b = hashValues[move];
 
-    // Check if we need to generate a new prime
-    if (!b) {
+    // If this move hasn't been assigned a prime yet
+    if (b == 0) {
         unsigned int next;
-        if (simplyNumbers[0] != 0) {
-            // Start searching from the last found prime
-            next = simplyNumbers[simplyCounter];
-            // Advance counter to the next slot
-            ++simplyCounter;
 
+        if (simplyCounter >= 0) {
+            next = simplyNumbers[simplyCounter];
             bool isComposite;
             do {
                 ++next;
                 isComposite = false;
-                for(int i = 0; i < simplyCounter; ++i) {
-                    // Standard prime check using modulo
+                for (int i = 0; i <= simplyCounter; ++i) {
                     if (next % simplyNumbers[i] == 0) {
                         isComposite = true;
                         break;
@@ -41,23 +50,21 @@ unsigned long SimplyNumbers::getHash(TMove move) {
                 }
             } while (isComposite);
         } else {
-            // First prime initialization
-            next = 2;
-            simplyCounter = 0;
+            next = 2; // First prime
         }
 
-        // Save the result
+        simplyCounter++;
         simplyNumbers[simplyCounter] = next;
         hashValues[move] = next;
         b = next;
-    }
 
-    // Requirement: Output move to primes.txt each time function executes till end
-    std::ofstream fout("primes.txt", std::ios::app);
-    if (fout.is_open()) {
-        // Cast TMove (unsigned char) to int to ensure decimal output
-        fout << (int)move << ", ";
-        fout.close();
+        // Persist the move to the file only if it's a new assignment
+        // (Prevents duplicates during the init() loop itself)
+        std::ofstream fout(PRIMES_FILE, std::ios::app);
+        if (fout.is_open()) {
+            fout << (int)move << ", ";
+            fout.close();
+        }
     }
 
     return b;
