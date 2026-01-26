@@ -5,6 +5,7 @@
 #include "Hashtable.h"
 #include "TNode.h"
 #include "Logger.h"
+#include "Persister.h"
 
 //103x105x331 ->62 M
 //53x1009x331 ->64 M

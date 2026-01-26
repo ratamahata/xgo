@@ -3,9 +3,19 @@
 
 //------------------------------------------------------------------
 Hashtable::Hashtable(Logger *logger) {
-    table = new TNode*[hashTableSizeX*hashTableSizeO];
-    memset(table, 0, sizeof(TNode**)*hashTableSizeX*hashTableSizeO);
+    // Initialize the table array
+    table = new TNode*[hashTableSizeX * hashTableSizeO];
+    memset(table, 0, sizeof(TNode*) * hashTableSizeX * hashTableSizeO);
     this->logger = logger;
+
+    Persister *persister = new Persister();
+
+    // Pass a lambda that calls getOrCreate and returns the pointer
+    persister->load([this](THash hX, THash hO, int age) -> TNode* {
+        bool created = false;
+        TNode* node = this->getOrCreate(hX, hO, age, created);
+        return node;
+    });
 }
 /*
 //------------------------------------------------------------------

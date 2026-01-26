@@ -14,7 +14,7 @@ private:
 
 public:
     void save(TNode* node);
-    void load(std::function<void(TNode)> processNode);
+    void load(std::function<TNode*(THash, THash, int)> getNode);
 
 };
 
