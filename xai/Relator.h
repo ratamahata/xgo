@@ -7,12 +7,6 @@
 #include "TNode.h"
 #include "Persister.h"
 
-class MovesBucket {
-        public:
-        int count;
-        TMove move[MAX_RELATIVES];
-};
-
 class Relator : public Evaluator {
 
         public:
@@ -25,11 +19,9 @@ class Relator : public Evaluator {
 
         Relator(SimplyNumbers*, Hashtable* );
 
-        MovesBucket newChilds;
         Persister *persister;
 
         TNode* getChild(TNode *parent, TMove childMove);
-        void findMovesToExpand();
         RelativeBucket getParents(TNode *node);
         bool isPerspectiveChild(TMove move);
         bool isPerspectiveChildMode1(TMove move);

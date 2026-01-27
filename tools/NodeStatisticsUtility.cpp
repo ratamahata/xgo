@@ -120,7 +120,7 @@ public:
                           << avgAbsRating << std::endl;
             } else {
                 std::cout << std::left << std::setw(6) << i
-                          << "0 nodes found for this age." << std::endl;
+                          << "0" << std::endl;
             }
         }
     }

@@ -38,6 +38,7 @@ class Logger {
         void expand(int count);
 
         void error(const char *message);
+        void log(const char *message);
 
         void printLastError(char *buffer);
 };

@@ -220,18 +220,6 @@ TNode* Relator::getParent(TNode *node, TMove move) {
 };
 
 //----------------------------------------------------------------------------
-
-void Relator::findMovesToExpand() {//TODO use single iteration
-    newChilds.count = 0;
-    bool mode1 = gameMode == 1 &&  count == 2;
-    for (TMove i = 0; i < TOTAL_CELLS; ++i) {
-        if ((mode1 ? kl[i]<=1 && isPerspectiveChildMode1(i) : isPerspectiveChild(i))  && isAlllowed(i)) {
-                newChilds.move[newChilds.count++] = i;
-        }
-    }
-};
-
-//----------------------------------------------------------------------------
 bool Relator::isPerspectiveChild(TMove move) {
     return kl[move]==1;
 }

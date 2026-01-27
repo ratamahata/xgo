@@ -4,6 +4,7 @@
 #pragma hdrstop
 
 #include "Logger.h"
+#include <iostream>
 
 //---------------------------------------------------------------------------
 
@@ -48,6 +49,10 @@ void Logger::missIndex() {
 
 void Logger::error(const char* message) {
         this->lastError = message;
+}
+
+void Logger::log(const char* message) {
+        std::cout << message << std::endl;
 }
 
 void Logger::expand(int count) {

@@ -81,3 +81,45 @@ TNode* Expander ::createNode(THash hX, THash hO, TByte age) {
     return node;
 }
 */
+
+//----------------------------------------------------------------------------
+
+void Expander::findMovesToExpand() {//TODO use single iteration
+    newChilds.count = 0;
+    bool mode1 = gameMode == 1 &&  count == 2;
+    int t;
+    TNode* curr = current()->node;
+
+    for (int pass = 0; pass < 2; ++pass) {
+        for (TMove i = 0; i < TOTAL_CELLS; ++i) {
+            if ((mode1 ? kl[i]<=1 && isPerspectiveChildMode1(i) : isPerspectiveChild(i))  && isAlllowed(i)) {
+
+                if (pass == 0) {
+
+                    t = 15;
+
+                    if (curr->x4 > 0) {
+                        if (scanlines(0, t, i) > 0) {
+                            //logger->log("FIVE");
+                        } else {
+                            continue;
+                            //logger->log("FIVE MISS");
+                        }
+                    }
+
+                }
+                newChilds.move[newChilds.count++] = i;
+            }
+        }
+        if (pass == 0) {
+            if (curr->x4 > 0) {
+                if (newChilds.count > 0) {
+                    logger->log("FIVE");
+                } else {
+                    logger->log("FIVE MISS");
+                }
+            }
+        }
+        if (newChilds.count > 0) return;
+    }
+};

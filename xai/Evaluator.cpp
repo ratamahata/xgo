@@ -94,9 +94,6 @@ skip:     { if (c==8)
 void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRating,x3,x4,o3,o4} of dest;
   static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
 
-  destNode->hashCodeX = src->hashCodeO;
-  destNode->hashCodeO = src->hashCodeX * simplyGen->getHash(move);
-
   destNode->o2 = src->x2;
   destNode->o3 = src->x3;
   destNode->o4 = src->x4;
@@ -106,7 +103,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
 
   int t = 15; // 'lines'
 
-  if (destNode->o4 > 0)// ��������� 5
+  if (destNode->o4 > 0)// build 5
     if (scanlines(0, t, move)) {
       destNode->rating = 32600;
       return;
@@ -116,13 +113,13 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
     }
   int ret = 0;
   bool c3my = false;
-  if (destNode->x4 > 0)//������� 4
+  if (destNode->x4 > 0)//close 4
     if (scanlines(1, t, move)) {
         --destNode->x4;
         c3my = 1;
       }
 
-  if (destNode->o3 > 0) {//����� �������� 4
+  if (destNode->o3 > 0) {//build opened 4
     if (scanlines(2, t, move)) {
       destNode->o4 += 2;
       --destNode->o3;
