@@ -43,7 +43,7 @@ typedef signed short int TRating;
 
 
       unsigned int totalChilds;
-      TRating rating;
+      volatile TRating rating;
 //      TNode *firstParent;//deprecated
 //      TNodeLink2 *nextParent;//deprecated
 //      TNodeLink *childs;//deprecated

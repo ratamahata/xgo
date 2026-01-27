@@ -18,38 +18,57 @@ GameBoard::GameBoard(SimplyNumbers *simplyGen, Hashtable *movesHash,
 };
 
 bool GameBoard::put(TMove N) {
-                int x = N%fsize - 7;
-                int y = N/fsize - 7;
-                bool symmW = history[count-1].symmW == 0;
-                bool swapped = false;
+    int x = N%fsize - 7;
+    int y = N/fsize - 7;
+    bool swapped = false;
 
-                if (history[count-1].symmX  == 0) {
-                    if (x < 0) {
-                        x = -x;
-                        if (swapW) {
-                                swapY = !swapY;
-                        } else {
-                                swapX = !swapX;
-                        }
-                    }
-                }
-                if ((  history[count-1].symmY  == 0 || history[count].symmXY  == 0) && y < 0) {
-                        y = -y;
-                        if (swapW) {
-                                swapX = !swapX;
-                        } else {
-                                swapY = !swapY;
-                        }
-                }
+    if (history[count-1].symmX  == 0) {
+        if (x < 0) {
+            x = -x;
+            if (swapW) {
+                    swapY = !swapY;
+            } else {
+                    swapX = !swapX;
+            }
+        }
+        logger->log("swapped X");
+    }
+    if ((  history[count-1].symmY  == 0 || history[count].symmXY  == 0) && y < 0) {
+            y = -y;
+            if (swapW) {
+                    swapX = !swapX;
+            } else {
+                    swapY = !swapY;
+            }
+            logger->log("swapped Y");
+    }
 
-                if ( symmW && !swapped == x < y && x!= y) {
-                        int t = x;
-                        x = y;
-                        y = t;
-                        swapW = !swapW;
-                }
 
-                return forward((y+7)*15+(x+7));
+    if (x<y && history[count-1].symmW == 0) {
+            int t = x;
+            x = y;
+            y = t;
+            swapW = !swapW;
+            logger->log("swapped W");
+    } else if (x+y<0 && history[count-1].symmXYW == 0) {
+            int t = x;
+            x = -y;
+            y = -t;
+            swapW = !swapW;
+            swapX = !swapX;
+            swapY = !swapY;
+            logger->log("swapped XYW");
+    }
+
+
+    logger->log("x", x);
+    logger->log("y", y);
+
+    bool ret = forward((y+7)*15+(x+7));
+    if (!ret) {
+        logger->log("Move not found");
+    }
+    return ret;
 };
 
 

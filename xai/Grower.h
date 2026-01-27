@@ -24,7 +24,7 @@ public:
         char* getMsgStatus();
 
 protected:
-        int userMoveRequested;
+        volatile int userMoveRequested;
         int resultRecieved;
 
 private:

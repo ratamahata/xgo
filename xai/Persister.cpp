@@ -27,7 +27,8 @@ void Persister::save(TNode* node) {
     outFile.write(reinterpret_cast<const char*>(&node->o3), sizeof(node->o3));
     outFile.write(reinterpret_cast<const char*>(&node->o4), sizeof(node->o4));
 
-    outFile.write(reinterpret_cast<const char*>(&node->rating), sizeof(node->rating));
+    TRating rating = node->rating;
+    outFile.write(reinterpret_cast<char*>(&rating), sizeof(node->rating));
 
     outFile.close();
 }

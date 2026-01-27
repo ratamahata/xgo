@@ -71,18 +71,6 @@ void Expander ::expand() {
   if (count > max_count) max_count = count;
 };
 
-/*
-//==================================================================
-TNode* Expander ::createNode(THash hX, THash hO, TByte age) {
-    TNode *node = new TNode();
-    node->hashCodeX = hX;
-    node->hashCodeO = hO;
-    node->age = age;
-    movesHash->put(node);
-    return node;
-}
-*/
-
 //----------------------------------------------------------------------------
 
 void Expander::findMovesToExpand() {//TODO use single iteration
