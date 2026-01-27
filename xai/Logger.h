@@ -39,6 +39,7 @@ class Logger {
 
         void error(const char *message);
         void log(const char *message);
+        void log(const char *message, const int i);
 
         void printLastError(char *buffer);
 };

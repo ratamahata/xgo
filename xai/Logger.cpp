@@ -55,6 +55,10 @@ void Logger::log(const char* message) {
         std::cout << message << std::endl;
 }
 
+void Logger::log(const char* message, const int i) {
+        std::cout << message << i << std::endl;
+}
+
 void Logger::expand(int count) {
         if (count%2) {
                 ++expandOdd;

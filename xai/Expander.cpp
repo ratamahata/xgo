@@ -20,8 +20,9 @@ void Expander ::expand() {
   TNode* cursor = current()->node;
 //  if (cursor->rating >= 32300 || cursor->rating <= -32300) {
   if (cursor->rating > 32200 || cursor->rating < -32200) {
-      ++cursor->totalChilds;
-      //logger->error("can't expand");
+      cursor->totalChilds += 100;
+      updateParents(100);
+      //logger->log("can't expand, node age:", cursor->hashCodeX);
       return;
   }
 //  if (logger != NULL) {
@@ -90,8 +91,20 @@ void Expander::findMovesToExpand() {//TODO use single iteration
     int t;
     TNode* curr = current()->node;
 
+//    if (curr->x4 > 0) {
+//            logger->log("FIVE?");
+//    } else if (curr->o4 > 0) {
+//           logger->log("CLOSE4?");
+//    } else if (curr->x3 > 0) {
+//           logger->log("FOOR?");
+//    } else if (curr->o3 > 0) {
+//           logger->log("CLOSE3?");
+//    }
+
+
     for (int pass = 0; pass < 2; ++pass) {
         for (TMove i = 0; i < TOTAL_CELLS; ++i) {
+
             if ((mode1 ? kl[i]<=1 && isPerspectiveChildMode1(i) : isPerspectiveChild(i))  && isAlllowed(i)) {
 
                 if (pass == 0) {
@@ -99,11 +112,20 @@ void Expander::findMovesToExpand() {//TODO use single iteration
                     t = 15;
 
                     if (curr->x4 > 0) {
-                        if (scanlines(0, t, i) > 0) {
-                            //logger->log("FIVE");
-                        } else {
-                            continue;
-                            //logger->log("FIVE MISS");
+                        if (scanlines(0, t, i) <= 0) {
+                            continue;//filter out nodes which not allows to build 5
+                        }
+                    } else if (curr->o4 > 0) {
+                        if (scanlines(1, t, i) <= 0) {
+                            continue;//filter out nodes which not allows to close 4
+                        }
+                    } else if (curr->x3 > 0) {
+                        if (scanlines(2, t, i) <= 0) {
+                            continue;//filter out nodes which not allows to build opened 4
+                        }
+                    } else if (curr->o3 > 0) {
+                        if (scanlines(3, t, i) <= 0 && scanlines(4, t, i) <= 0) {
+                            continue;//filter out nodes which allows neither close 3 nor build opened or closed  4
                         }
                     }
 
@@ -111,15 +133,34 @@ void Expander::findMovesToExpand() {//TODO use single iteration
                 newChilds.move[newChilds.count++] = i;
             }
         }
-        if (pass == 0) {
-            if (curr->x4 > 0) {
-                if (newChilds.count > 0) {
-                    logger->log("FIVE");
-                } else {
-                    logger->log("FIVE MISS");
-                }
-            }
-        }
+//        if (pass == 0) {
+//            if (curr->x4 > 0) {
+//                if (newChilds.count > 0) {
+//                    logger->log("FIVE");
+//                } else {
+//                    logger->log("FIVE MISS");
+//                }
+//            } else if (curr->o4 > 0) {
+//               if (newChilds.count > 0) {
+//                   logger->log("CLOSE4");
+//               } else {
+//                   logger->log("CLOSE4 MISS");
+//               }
+//            } else if (curr->x3 > 0) {
+//               if (newChilds.count > 0) {
+//                   logger->log("FOOR");
+//               } else {
+//                   logger->log("FOOR MISS");
+//               }
+//            } else if (curr->o3 > 0) {
+//               if (newChilds.count > 0) {
+//                   logger->log("CLOSE3");
+//               } else {
+//                   logger->log("CLOSE3 MISS");
+//               }
+//            }
+//        }
         if (newChilds.count > 0) return;
+        //logger->log("NEXT PASS");
     }
 };
