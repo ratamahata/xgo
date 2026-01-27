@@ -62,6 +62,51 @@ public:
         std::cout << "nodes total: " << nodeCount << "  duplicates: " << errorCount << std::endl;
     }
 
+    void printYoungNodeHashes() {
+        const char* fileName = "xo.dat";
+        std::ifstream inFile(fileName, std::ios::binary);
+
+        if (!inFile.is_open()) {
+            std::cerr << "Error: Could not open " << fileName << " to print hashes." << std::endl;
+            return;
+        }
+
+        THash hX, hO;
+        TByte dummyZero, age, x3, x4, o3, o4;
+        TRating rating; // This is a signed short int
+
+        std::cout << "\nNodes with age <= 4 (Decimal Format):" << std::endl;
+        std::cout << std::left << std::setw(6)  << "Age"
+                  << std::setw(15) << "hashCodeX"
+                  << std::setw(15) << "hashCodeO"
+                  << "Rating" << std::endl;
+        std::cout << std::string(50, '-') << std::endl;
+
+        while (inFile.read(reinterpret_cast<char*>(&hX), sizeof(hX))) {
+            inFile.read(reinterpret_cast<char*>(&hO), sizeof(hO));
+            inFile.read(reinterpret_cast<char*>(&dummyZero), sizeof(dummyZero));
+            inFile.read(reinterpret_cast<char*>(&age), sizeof(age));
+
+            // Read the move-checker bytes to advance the pointer
+            inFile.read(reinterpret_cast<char*>(&x3), sizeof(x3));
+            inFile.read(reinterpret_cast<char*>(&x4), sizeof(x4));
+            inFile.read(reinterpret_cast<char*>(&o3), sizeof(o3));
+            inFile.read(reinterpret_cast<char*>(&o4), sizeof(o4));
+
+            // Read the 2-byte rating (TRating / signed short int)
+            inFile.read(reinterpret_cast<char*>(&rating), sizeof(rating));
+
+            if (age <= 4) {
+                std::cout << std::left << std::setw(6)  << static_cast<int>(age)
+                          << std::setw(15) << hX
+                          << std::setw(15) << hO
+                          << static_cast<int>(rating) << std::endl;
+            }
+        }
+
+        inFile.close();
+    }
+
     void processFile() {
         const char* fileName = "xo.dat";
         std::ifstream inFile(fileName, std::ios::binary);
@@ -129,6 +174,7 @@ public:
 int main() {
     NodeStatisticsUtility util;
     util.checkUniqueness();
+    util.printYoungNodeHashes();
     util.processFile();
     return 0;
 }
