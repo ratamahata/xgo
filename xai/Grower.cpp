@@ -34,7 +34,7 @@ Grower::Grower(SimplyNumbers *simplyGen, Hashtable *movesHash,
 #define MAX_CHILD_DECREASE_SINCE 31000000
 #define MAX_CHILD_DECREASE_TILL 36000000
 
-#define ZONE01_RATING 5700
+#define ZONE01_RATING 6100
 #define ZONE12_RATING 10000
 
 

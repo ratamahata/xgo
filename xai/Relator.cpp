@@ -15,6 +15,7 @@ Relator::Relator(SimplyNumbers* sn, Hashtable* ht) : Evaluator(sn, ht){
 };
 
 TNode* Relator::getChild(TNode *parent, TMove childMove) {
+   if (childMove == 112) return NULL;
    THash hashCodeX = parent->hashCodeO;
    THash hashCodeO = parent->hashCodeX * simplyGen->getHash(childMove);
    return movesHash->get(hashCodeX, hashCodeO, parent->age + 1);
