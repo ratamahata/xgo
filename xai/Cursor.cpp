@@ -63,10 +63,14 @@ bool Cursor::forward(TMove N) {
   THash hashCodeX = node->hashCodeO;
   THash hashCodeO = node->hashCodeX * simplyGen->getHash(N);
 
-  bool created;
+  bool created = false;
   TNode *nextNode = movesHash->getOrCreate(hashCodeX, hashCodeO, node->age + 1, created);
   if (nextNode == NULL) {
-        return false;//no entry, return error
+    logger->log("Error creating node.");
+    return false;
+}
+  if (created) {
+    logger->log("Warning: not existed node.");
   }
 
   return forward(N, nextNode);

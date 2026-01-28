@@ -49,6 +49,7 @@ void Logger::missIndex() {
 
 void Logger::error(const char* message) {
         this->lastError = message;
+        log(message);
 }
 
 void Logger::log(const char* message) {
