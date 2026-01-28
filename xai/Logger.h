@@ -14,6 +14,7 @@ class Logger {
         int missAgeCount;
         int missHashCount;
         int missIndexCount;
+        int missNodeCount;
         int missExpandCount;
         const char* lastError;
         int expandEven;
@@ -39,6 +40,7 @@ class Logger {
         void missAge();
         void missHash();
         void missIndex();
+        void missNode(TNode *node);
         void missExpand(TNode *node);
 
         void cull(TRating ratingOld, TRating max_rating, TNode *node);
@@ -49,5 +51,6 @@ class Logger {
         void log(const char *message, const int i);
 
         void printLastError(char *buffer);
+        void printMissStats(char *buffer);
 };
 #endif

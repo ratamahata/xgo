@@ -14,14 +14,14 @@ typedef TByte TMove;
 typedef uint32_t THash;
 #define THASH_MAX 4294967295U //ULONG_MAX from <limits.h>
 
-#define BIG_PARENT1    9000
-#define BIG_PARENT2   18000
-#define BIG_PARENT3   36000
-#define BIG_PARENT4   72000
-#define BIG_PARENT5  144000
+#define BIG_PARENT1    7000
+#define BIG_PARENT2   14000
+#define BIG_PARENT3   28000
+#define BIG_PARENT4   60000
+#define BIG_PARENT5  120000
 
-#define CULL_RATING1 8000
-#define CULL_RATING2 16000
+#define CULL_RATING1 6066
+#define CULL_RATING2 13000
 
 typedef signed short int TRating;
 

@@ -43,7 +43,7 @@ func main() {
 	// 1. Initialize Status Data
 	statusData := &xfyneui.StatusController{}
 	statusContainer := container.NewVBox()
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 6; i++ {
 		statusData.Lines[i] = binding.NewString()
 		statusData.Lines[i].Set("Waiting...")
 		statusContainer.Add(widget.NewLabelWithData(statusData.Lines[i]))

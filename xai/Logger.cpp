@@ -15,6 +15,8 @@ Logger::Logger() {
         missAgeCount = 0;
         missHashCount = 0;
         missIndexCount = 0;
+        missExpandCount = 0;
+        missNodeCount = 0;
         lastError = NULL;
         expandEven = 0;
         expandOdd = 0;
@@ -52,6 +54,9 @@ void Logger::missIndex() {
 void Logger::missExpand(TNode *node) {
         ++missExpandCount;
 };
+void Logger::missNode(TNode *node) {
+        ++missNodeCount;
+};
 
 void Logger::error(const char* message) {
         this->lastError = message;
@@ -79,18 +84,21 @@ void Logger::printLastError(char *buffer) {
         //sprintf(buffer, "%d ", (expandEven*100 / (1+expandOdd + expandEven)));
 
         if (lastError == NULL) {
-        sprintf(buffer, "%d/%d/%d/%d/%d - %d/%d/%d/%d/%d",
+            sprintf(buffer, "Cull %d/%d/%d/%d/%d - %d/%d/%d/%d/%d",
                 parents1Culled1, parents2Culled1, parents3Culled1, parents4Culled1, parents5Culled1,
-                parents1Culled2, parents2Culled2, parents3Culled2, parents4Culled2, parents5Culled2
-        );
+                parents1Culled2, parents2Culled2, parents3Culled2, parents4Culled2, parents5Culled2);
         } else {
 
-        sprintf(buffer,
+            sprintf(buffer,
                 lastError != NULL
                         ? lastError : missAgeCount > 0
                         ? "Hash collisions %d"
                         : " ", missAgeCount);
         }
+}
+
+void Logger::printMissStats(char *buffer) {
+        sprintf(buffer, "Miss %d / %d / %d", missExpandCount, missNodeCount, missAgeCount);
 }
 
 void Logger::cull(TRating ratingOld, TRating max_rating, TNode *node) {

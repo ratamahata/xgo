@@ -21,6 +21,7 @@ public:
         char* getMsg3();
         char* getMsg4();
         char* getMsg5();
+        char* getMsg6();
         char* getMsgStatus();
 
 protected:
@@ -43,6 +44,7 @@ private:
         char msg3[200];
         char msg4[200];
         char msg5[200];
+        char msg6[200];
         short int xRating;
 
         char msgStatus[200];

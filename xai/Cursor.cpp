@@ -70,6 +70,7 @@ bool Cursor::forward(TMove N) {
     return false;
 }
   if (created) {
+    logger->missNode(nextNode);
     logger->log("Warning: not existed node.");
   }
 

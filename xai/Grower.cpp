@@ -279,6 +279,8 @@ void Grower::grow() {
                         (int)TNode::avgSquareDiff
                         );
 
+              logger->printMissStats(msg6);
+
 /* TODO
               if (xo != NULL) {
                 unsigned long time = GetTickCount() - beginTime;
@@ -354,6 +356,10 @@ char* Grower::getMsg4() {
 
 char* Grower::getMsg5() {
   return msg5;
+};
+
+char* Grower::getMsg6() {
+  return msg6;
 };
 
 char* Grower::getMsgStatus() {
