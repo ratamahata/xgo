@@ -28,6 +28,9 @@ void Builder::buildTree() {
   int i;
 
   while (cur->node->totalDirectChilds > 0 && count < 224) {
+
+    fullExpand(cur->node);
+
     i = chooseNodeToExpand();
 
     if (i == -1) {
@@ -41,7 +44,7 @@ void Builder::buildTree() {
     cur = current();
   }
 
-  expand();
+  expand(0, cur->node);
 
   while(count>count0) back();
 

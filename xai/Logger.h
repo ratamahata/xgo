@@ -16,6 +16,8 @@ class Logger {
         int missIndexCount;
         int missNodeCount;
         int missExpandCount;
+        int missMovesCount;
+
         int miss5Count;
         int miss4Count;
         int miss3Count;
@@ -47,6 +49,7 @@ class Logger {
         void missIndex();
         void missNode(TNode *node);
         void missExpand(TNode *node);
+        void missMoves(TNode *node);
 
         void miss5();
         void miss4();

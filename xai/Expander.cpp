@@ -15,9 +15,17 @@ Expander::Expander(SimplyNumbers *simplyGen, Hashtable *movesHash)
 }
 
 //==================================================================
+void Expander ::fullExpand(TNode* cursor) {
+
+    if (!cursor->isRage() || cursor->totalChilds < cursor->rating)  return;
+
+    expand(1, cursor);
+    cursor->setRage(false);
+}
+
 //adds childs to cursor node
-void Expander ::expand() {
-  TNode* cursor = current()->node;
+void Expander ::expand(int startPass, TNode* cursor) {
+
   if (cursor->rating > 32500 || cursor->rating < -32500) {
       cursor->totalChilds += 100;
       updateParents(100);
@@ -27,7 +35,12 @@ void Expander ::expand() {
 //  if (logger != NULL) {
 //        logger->expand(count);
 //  }
-  findMovesToExpand(0);
+  findMovesToExpand(startPass);
+
+  if (newChilds.count == 0) {
+    logger->missMoves(cursor);
+    return;
+  }
 
   TRating max_rating = -32600;
 
@@ -48,7 +61,9 @@ void Expander ::expand() {
         rate(cursor, node, move);
         ++cursor->totalChilds;
     } else {
-        cursor->totalChilds += (node->totalChilds+1);
+//        if (startPass == 0) {
+//            cursor->totalChilds += (node->totalChilds+1);
+//        }
     }
 
     if (node->rating > max_rating) max_rating = node->rating;
@@ -115,13 +130,12 @@ void Expander::findMovesToExpand(int startPass) {//TODO use single iteration
                         if (scanlines(3, t, i) <= 0 && scanlines(4, t, i) <= 0) {
                             continue;//filter out nodes which allows neither close 3 nor build closed  4
                         }
+                    } else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) {
+                        if (scanlines(4, t, i) <= 0 && scanlines(5, t, i) <= 0) {
+                            rage = true;
+                            continue;//filter out nodes which not allows to build 3 or 4
+                        }
                     }
-//                     else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) {
-//                        if (scanlines(4, t, i) <= 0 && scanlines(5, t, i) <= 0) {
-//                            rage = true;
-//                            continue;//filter out nodes which not allows to build 3 or 4
-//                        }
-//                    }
 
                 }
                 newChilds.move[newChilds.count++] = i;
@@ -138,12 +152,13 @@ void Expander::findMovesToExpand(int startPass) {//TODO use single iteration
                 } else if (curr->o3 > 0) {
                    logger->miss3o();
                 } else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) {
-                   logger->miss3o();
+                   logger->miss3();
                 }
             } else {
-//                if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400) && rage) {
-//
-//                }
+                if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400) && rage) {
+                    //rage mode: number of childs was reduced to only those which builds 3 or 4
+                    curr->setRage(true);
+                }
             }
         }
         if (newChilds.count > 0) return;

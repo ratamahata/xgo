@@ -19,7 +19,8 @@ public:
 
 protected:
         Expander(SimplyNumbers *simplyGen, Hashtable *movesHash);
-        void expand();
+        void expand(int start, TNode* cursor);
+        void fullExpand(TNode* cursor);
 //        TNode* createNode(THash hX, THash hO, TByte age);        
 private:
         MovesBucket newChilds;

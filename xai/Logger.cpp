@@ -84,6 +84,9 @@ void Logger::missExpand(TNode *node) {
 void Logger::missNode(TNode *node) {
         ++missNodeCount;
 };
+void Logger::missMoves(TNode *node) {
+        ++missMovesCount;
+};
 
 void Logger::error(const char* message) {
         this->lastError = message;
@@ -125,9 +128,9 @@ void Logger::printLastError(char *buffer) {
 }
 
 void Logger::printMissStats(char *buffer) {
-        sprintf(buffer, "Miss %d [%d,%d,%d,%d,%d] %d / %d", missExpandCount,
+        sprintf(buffer, "Miss %d [%d,%d,%d,%d,%d] %d / %d / %d", missExpandCount,
             miss5Count, miss4oCount, miss4Count, miss3oCount, miss3Count,
-            missNodeCount, missAgeCount);
+            missMovesCount, missNodeCount, missAgeCount);
 }
 
 void Logger::cull(TRating ratingOld, TRating max_rating, TNode *node) {
