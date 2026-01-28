@@ -113,41 +113,29 @@ void Expander::findMovesToExpand() {//TODO use single iteration
                         }
                     } else if (curr->o3 > 0) {
                         if (scanlines(3, t, i) <= 0 && scanlines(4, t, i) <= 0) {
-                            continue;//filter out nodes which allows neither close 3 nor build opened or closed  4
+                            continue;//filter out nodes which allows neither close 3 nor build closed  4
                         }
-                    }// else if (curr->x2 > 0 && )
+                    } else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) {
+                        if (scanlines(4, t, i) <= 0 && scanlines(5, t, i) <= 0) {
+                            continue;//filter out nodes which not allows to build 3 or 4
+                        }
+                    }
 
                 }
                 newChilds.move[newChilds.count++] = i;
             }
         }
-//        if (pass == 0) {
-//            if (curr->x4 > 0) {
-//                if (newChilds.count > 0) {
-//                    logger->log("FIVE");
-//                } else {
-//                    logger->log("FIVE MISS");
-//                }
-//            } else if (curr->o4 > 0) {
-//               if (newChilds.count > 0) {
-//                   logger->log("CLOSE4");
-//               } else {
-//                   logger->log("CLOSE4 MISS");
-//               }
-//            } else if (curr->x3 > 0) {
-//               if (newChilds.count > 0) {
-//                   logger->log("FOOR");
-//               } else {
-//                   logger->log("FOUR MISS");
-//               }
-//            } else if (curr->o3 > 0) {
-//               if (newChilds.count > 0) {
-//                   logger->log("CLOSE3");
-//               } else {
-//                   logger->log("CLOSE3 MISS");
-//               }
-//            }
-//        }
+        if (pass == 0 && newChilds.count == 0) {
+            if (curr->x4 > 0) {
+               logger->miss5();
+            } else if (curr->o4 > 0) {
+               logger->miss4o();
+            } else if (curr->x3 > 0) {
+               logger->miss4();
+            } else if (curr->o3 > 0) {
+               logger->miss3o();
+            }
+        }
         if (newChilds.count > 0) return;
         //logger->log("NEXT PASS");
     }

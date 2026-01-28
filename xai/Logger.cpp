@@ -17,6 +17,13 @@ Logger::Logger() {
         missIndexCount = 0;
         missExpandCount = 0;
         missNodeCount = 0;
+
+        miss5Count = 0;
+        miss4Count = 0;
+        miss3Count = 0;
+        miss4oCount = 0;
+        miss3oCount = 0;
+
         lastError = NULL;
         expandEven = 0;
         expandOdd = 0;
@@ -49,6 +56,26 @@ void Logger::missHash() {
 
 void Logger::missIndex() {
         ++missIndexCount;
+}
+
+void Logger::miss5() {
+        ++miss5Count;
+}
+
+void Logger::miss4() {
+        ++miss4Count;
+}
+
+void Logger::miss3() {
+        ++miss3Count;
+}
+
+void Logger::miss4o() {
+        ++miss4oCount;
+}
+
+void Logger::miss3o() {
+        ++miss3oCount;
 }
 
 void Logger::missExpand(TNode *node) {
@@ -98,7 +125,8 @@ void Logger::printLastError(char *buffer) {
 }
 
 void Logger::printMissStats(char *buffer) {
-        sprintf(buffer, "Miss %d / %d / %d", missExpandCount, missNodeCount, missAgeCount);
+        sprintf(buffer, "Miss %d [%d,%d,%d,%d,%d] %d / %d", missExpandCount, miss5Count, miss4oCount, miss4Count, miss3oCount, miss3Count,
+            missNodeCount, missAgeCount);
 }
 
 void Logger::cull(TRating ratingOld, TRating max_rating, TNode *node) {

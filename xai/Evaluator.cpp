@@ -126,7 +126,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
     }
   }
   bool c3 = true;
-  while (destNode->x3&&c3) {//������� 3
+  while (destNode->x3&&c3) {//close 3
     int t0 = t;
     if (0 != (c3 = scanlines(3, t, move))) {
         --destNode->x3;
@@ -161,13 +161,13 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
 //  }
 
   //t = 15;
-  while (scanlines(4, t, move)) {//��������� �������� 4
+  while (scanlines(4, t, move)) {//build closed 4
     ++destNode->o4;
     destNode->o2 -= destNode->o2 >= 12 ? 12 : destNode->o2;
     if (c3my) c3my = 2;
   }
 
-  while (scanlines(5, t, move)) {//����� 3
+  while (scanlines(5, t, move)) {//build 3
     destNode->o3 += 1;
     destNode->o2 -= destNode->o2 >= 10 ? 10 : destNode->o2;
   }

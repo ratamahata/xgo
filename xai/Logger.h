@@ -16,6 +16,11 @@ class Logger {
         int missIndexCount;
         int missNodeCount;
         int missExpandCount;
+        int miss5Count;
+        int miss4Count;
+        int miss3Count;
+        int miss4oCount;
+        int miss3oCount;
         const char* lastError;
         int expandEven;
         int expandOdd;
@@ -42,6 +47,12 @@ class Logger {
         void missIndex();
         void missNode(TNode *node);
         void missExpand(TNode *node);
+
+        void miss5();
+        void miss4();
+        void miss3();
+        void miss4o();
+        void miss3o();
 
         void cull(TRating ratingOld, TRating max_rating, TNode *node);
         void expand(int count);
