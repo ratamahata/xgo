@@ -29,6 +29,8 @@ Logger::Logger() {
         parents4Culled2 = 0;
         parents5Culled1 = 0;
         parents5Culled2 = 0;
+
+        persister = new Persister();
 }
 
 void Logger::hit() {
@@ -46,6 +48,10 @@ void Logger::missHash() {
 void Logger::missIndex() {
         ++missIndexCount;
 }
+
+void Logger::missExpand(TNode *node) {
+        ++missExpandCount;
+};
 
 void Logger::error(const char* message) {
         this->lastError = message;
@@ -85,4 +91,38 @@ void Logger::printLastError(char *buffer) {
                         ? "Hash collisions %d"
                         : " ", missAgeCount);
         }
+}
+
+void Logger::cull(TRating ratingOld, TRating max_rating, TNode *node) {
+
+    if (ratingOld > -CULL_RATING2 && max_rating >= CULL_RATING2) {
+
+        if (node->totalChilds >= BIG_PARENT5) {
+           ++parents5Culled2;
+        } else if (node->totalChilds >= BIG_PARENT4) {
+           ++parents4Culled2;
+        } else if (node->totalChilds >= BIG_PARENT3) {
+           ++parents3Culled2;
+        } else if (node->totalChilds >= BIG_PARENT2) {
+           ++parents2Culled2;
+        } else  {
+           ++parents1Culled2;
+        }
+    } else if (ratingOld > -CULL_RATING1 && max_rating >= CULL_RATING1) {
+
+        if (node->totalChilds >= BIG_PARENT5) {
+           ++parents5Culled1;
+        } else if (node->totalChilds >= BIG_PARENT4) {
+           ++parents4Culled1;
+        } else if (node->totalChilds >= BIG_PARENT3) {
+           ++parents3Culled1;
+        } else if (node->totalChilds >= BIG_PARENT2) {
+           ++parents2Culled1;
+        } else  {
+           ++parents1Culled1;
+        }
+    } else return;
+
+    node->fixedRating = true;
+    persister->save(node);
 }

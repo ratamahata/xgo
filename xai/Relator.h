@@ -5,7 +5,7 @@
 //---------------------------------------------------------------------------
 #include "Evaluator.h"
 #include "TNode.h"
-#include "Persister.h"
+#include "Logger.h"
 
 class Relator : public Evaluator {
 
@@ -18,8 +18,6 @@ class Relator : public Evaluator {
         protected:
 
         Relator(SimplyNumbers*, Hashtable* );
-
-        Persister *persister;
 
         TNode* getChild(TNode *parent, TMove childMove);
         RelativeBucket getParents(TNode *node);

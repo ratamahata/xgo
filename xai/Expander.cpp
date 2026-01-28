@@ -22,7 +22,7 @@ void Expander ::expand() {
   if (cursor->rating > 32200 || cursor->rating < -32200) {
       cursor->totalChilds += 100;
       updateParents(100);
-      //logger->log("can't expand, node age:", cursor->hashCodeX);
+      logger->missExpand(cursor);
       return;
   }
 //  if (logger != NULL) {
@@ -84,7 +84,7 @@ void Expander::findMovesToExpand() {//TODO use single iteration
 //    } else if (curr->o4 > 0) {
 //           logger->log("CLOSE4?");
 //    } else if (curr->x3 > 0) {
-//           logger->log("FOOR?");
+//           logger->log("FOUR?");
 //    } else if (curr->o3 > 0) {
 //           logger->log("CLOSE3?");
 //    }
@@ -115,7 +115,7 @@ void Expander::findMovesToExpand() {//TODO use single iteration
                         if (scanlines(3, t, i) <= 0 && scanlines(4, t, i) <= 0) {
                             continue;//filter out nodes which allows neither close 3 nor build opened or closed  4
                         }
-                    }
+                    }// else if (curr->x2 > 0 && )
 
                 }
                 newChilds.move[newChilds.count++] = i;
@@ -138,7 +138,7 @@ void Expander::findMovesToExpand() {//TODO use single iteration
 //               if (newChilds.count > 0) {
 //                   logger->log("FOOR");
 //               } else {
-//                   logger->log("FOOR MISS");
+//                   logger->log("FOUR MISS");
 //               }
 //            } else if (curr->o3 > 0) {
 //               if (newChilds.count > 0) {

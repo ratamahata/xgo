@@ -4,6 +4,8 @@
 #define LoggerH
 #include <stdio.h>
 //---------------------------------------------------------------------------
+#include <TNode.h>
+#include <Persister.h>
 
 class Logger {
 
@@ -12,11 +14,13 @@ class Logger {
         int missAgeCount;
         int missHashCount;
         int missIndexCount;
+        int missExpandCount;
         const char* lastError;
         int expandEven;
         int expandOdd;
         int reserved;
 
+        Persister *persister;
   public:
 
         int parents1Culled1;
@@ -35,6 +39,9 @@ class Logger {
         void missAge();
         void missHash();
         void missIndex();
+        void missExpand(TNode *node);
+
+        void cull(TRating ratingOld, TRating max_rating, TNode *node);
         void expand(int count);
 
         void error(const char *message);

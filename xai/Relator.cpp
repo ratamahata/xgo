@@ -9,10 +9,7 @@
 
 #pragma package(smart_init)
 
-Relator::Relator(SimplyNumbers* sn, Hashtable* ht) : Evaluator(sn, ht){
-
-    persister = new Persister();
-};
+Relator::Relator(SimplyNumbers* sn, Hashtable* ht) : Evaluator(sn, ht) {};
 
 TNode* Relator::getChild(TNode *parent, TMove childMove) {
    if (childMove == 112) return NULL;
@@ -146,37 +143,7 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
 
             if (node->totalChilds >= BIG_PARENT1 && !node->fixedRating) {
 
-                if (ratingOld > -CULL_RATING2 && max_rating >= CULL_RATING2) {
-
-                    node->fixedRating = true;
-                    persister->save(node);
-                    if (node->totalChilds >= BIG_PARENT5) {
-                       ++logger->parents5Culled2;
-                    } else if (node->totalChilds >= BIG_PARENT4) {
-                       ++logger->parents4Culled2;
-                    } else if (node->totalChilds >= BIG_PARENT3) {
-                       ++logger->parents3Culled2;
-                    } else if (node->totalChilds >= BIG_PARENT2) {
-                       ++logger->parents2Culled2;
-                    } else  {
-                       ++logger->parents1Culled2;
-                    }
-                } else if (ratingOld > -CULL_RATING1 && max_rating >= CULL_RATING1) {
-
-                    node->fixedRating = true;
-                    persister->save(node);
-                    if (node->totalChilds >= BIG_PARENT5) {
-                       ++logger->parents5Culled1;
-                    } else if (node->totalChilds >= BIG_PARENT4) {
-                       ++logger->parents4Culled1;
-                    } else if (node->totalChilds >= BIG_PARENT3) {
-                       ++logger->parents3Culled1;
-                    } else if (node->totalChilds >= BIG_PARENT2) {
-                       ++logger->parents2Culled1;
-                    } else  {
-                       ++logger->parents1Culled1;
-                    }
-                }
+                logger->cull(ratingOld, max_rating, node);
             }
 
             return ratingUpdated = true;
