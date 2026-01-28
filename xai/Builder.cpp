@@ -94,7 +94,7 @@ int Builder::chooseNodeToExpand() {
     if (childs.count == 0) return -1;
 
     // 1. Calculate total children across all branches
-    int totalAllChilds = 0;
+    int totalAllChilds = 0; // = current()->node->totalChilds;
     for (int i = 0; i < childs.count; ++i) {
         totalAllChilds += childs.node[i]->totalChilds;
     }

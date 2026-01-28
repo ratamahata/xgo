@@ -125,7 +125,8 @@ void Logger::printLastError(char *buffer) {
 }
 
 void Logger::printMissStats(char *buffer) {
-        sprintf(buffer, "Miss %d [%d,%d,%d,%d,%d] %d / %d", missExpandCount, miss5Count, miss4oCount, miss4Count, miss3oCount, miss3Count,
+        sprintf(buffer, "Miss %d [%d,%d,%d,%d,%d] %d / %d", missExpandCount,
+            miss5Count, miss4oCount, miss4Count, miss3oCount, miss3Count,
             missNodeCount, missAgeCount);
 }
 
@@ -159,6 +160,6 @@ void Logger::cull(TRating ratingOld, TRating max_rating, TNode *node) {
         }
     } else return;
 
-    node->fixedRating = true;
+    node->setFixedRating(true);
     persister->save(node);
 }

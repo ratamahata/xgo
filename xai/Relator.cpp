@@ -141,7 +141,7 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
             TRating ratingOld = node->rating;
             node->update(-max_rating, addedChilds);
 
-            if (node->totalChilds >= BIG_PARENT1 && !node->fixedRating) {
+            if (node->totalChilds >= BIG_PARENT1 && !node->isFixedRating()) {
 
                 logger->cull(ratingOld, max_rating, node);
             }

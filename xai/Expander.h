@@ -23,7 +23,7 @@ protected:
 //        TNode* createNode(THash hX, THash hO, TByte age);        
 private:
         MovesBucket newChilds;
-        void findMovesToExpand();
+        void findMovesToExpand(int start);
 };
 
 #endif

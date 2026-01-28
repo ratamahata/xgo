@@ -230,12 +230,12 @@ exit:
         int m3 = move;
         if (m1/15 == m2/15 && m1/15 == m3/15 || m1%15 == m2%15 && m1%15 == m3%15) {
           ret = -6026;
-          destNode->fixedRating = true;
+          destNode->setFixedRating(true);
         }
   }
 //end check special cases
 
-  if (destNode->fixedRating) {}
+  if (destNode->isFixedRating()) {}
   else if (destNode->x4) {
     ret = -32200;
   } else if (destNode->x3 > 0 && destNode->o4 == 0) {

@@ -11,11 +11,11 @@ volatile TNode* TNode::first = NULL;
 TNode::TNode() {
     totalChilds = 0;
     rating = 0;
+    flags = 0;
     totalDirectChilds = 0;
     hashCodeX = 1;
     hashCodeO = 1;
     x2 = x3 = x4 = o2 = o3 = o4 = 0;
-    fixedRating = false;
     next = 0;
     if (first == NULL) first = this;
 };
@@ -167,7 +167,7 @@ void TNode::update(short int newRating, unsigned int addedChilds) {
 //                        rating = newRating + 1;
 ////                } else if (totalChilds < 50000) {
 //                } else {
-                        if (!fixedRating) {
+                        if (!isFixedRating()) {
                                 rating = newRating;
                         }
 //                } else if (totalChilds < 150000) {
@@ -182,3 +182,20 @@ void TNode::update(short int newRating, unsigned int addedChilds) {
         }
     }
 };
+
+
+//==================================================================
+
+void TNode::setFixedRating(bool set) {
+    if (set) flags |= 1; else flags &= 254;
+};
+bool TNode::isFixedRating() {
+    return flags&1 != 0;
+};
+void TNode::setRage(bool set) {
+    if (set) flags |= 2; else flags &= 253;
+};
+bool TNode::isRage() {
+    return flags&2 != 0;
+};
+

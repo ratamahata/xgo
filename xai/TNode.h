@@ -34,6 +34,11 @@ typedef signed short int TRating;
       volatile static TNode* first;
 
       TNode();
+      void setFixedRating(bool);
+      bool isFixedRating();
+      void setRage(bool);
+      bool isRage();
+
       void update(short int newRating, unsigned int addedChilds);
       int ratingToTotalChilds();
 //      int removeChild(TNode *child);
@@ -48,7 +53,7 @@ typedef signed short int TRating;
 //      TNodeLink2 *nextParent;//deprecated
 //      TNodeLink *childs;//deprecated
 //      void *reserved;
-      bool fixedRating;
+      TByte flags;
       TByte //move,
         totalDirectChilds,
         x2,x3,x4,//checks after this move of opponent

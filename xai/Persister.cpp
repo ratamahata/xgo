@@ -62,7 +62,7 @@ void Persister::load(std::function<TNode*(THash, THash, int)> getNode) {
             targetNode->o3 = o3;
             targetNode->o4 = o4;
             targetNode->rating = rating;
-            targetNode->fixedRating = true;
+            targetNode->setFixedRating(true);
         }
     }
     inFile.close();
