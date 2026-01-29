@@ -15,6 +15,7 @@ class Evaluator : public Cursor {
 
         protected:
         bool  scanlines(int BlNo, int &lines, int N);
+        bool  scanlines2(int BlNo, int &lines, int N);
         int   scanlines(int BlNo, int &lines, int N, TNode *destNode);
 
         public:

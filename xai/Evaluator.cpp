@@ -92,8 +92,22 @@ skip:     { if (c==8)
 
 //==============================================================================
 
-int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode)
-{
+// Вспомогательная функция для безопасного добавления атак
+void addAttackIfEmpty(TNode* destNode, int cx, int cy) {
+    // Проверка границ поля fsize
+    if (cx >= 0 && cx < fsize && cy >= 0 && cy < fsize) {
+        TMove atk = (TMove)(cx + cy * fsize);
+        for (int i = 0; i < MAX_ATTACK; i++) {
+            if (destNode->attaсks[i] == atk) return;
+            if (destNode->attaсks[i] == 0) {
+                destNode->attaсks[i] = atk;
+                return;
+            }
+        }
+    }
+}
+
+int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
   static const int bl[18] = {0,1,2,6,16,21,30,6,21,30,43,53,54,9,11,30,53};
   static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
   static const int p2[4] = {1,2,4,8};
@@ -106,21 +120,16 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode)
     if (lines & p2[nvec]) {
       for (int nline = bl[BlNo]; nline < bl[BlNo + 1]; nline++) {
         for (int sdv = 0; sdv < 9; sdv++) {
-          if (line[id][nline][sdv] & 32) { // Точка привязки
+          if (line[id][nline][sdv] & 32) {
             bool match = true;
+            int vx = vec[nvec][0], vy = vec[nvec][1];
 
-            // Проверка совпадения шаблона
             for (int c = 0; c < 9; c++) {
               if (c == sdv) continue;
               unsigned char pChar = line[id][nline][c];
               if (!pChar) break;
-
-              // Используем только младшие биты для сравнения с полем (mask 63)
-              // чтобы бит 64 не мешал функции comp
-              if (!comp(x + vec[nvec][0] * (c - sdv),
-                        y + vec[nvec][1] * (c - sdv), pChar & 63)) {
-                match = false;
-                break;
+              if (!comp(x + vx * (c - sdv), y + vy * (c - sdv), pChar & 63)) {
+                match = false; break;
               }
             }
 
@@ -128,24 +137,60 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode)
               totalFound++;
               lines -= p2[nvec];
 
-              // Сбор атак: ищем клетки с установленным 64-м битом
-              for (int c = 0; c < 9; c++) {
-                unsigned char pChar = line[id][nline][c];
-                if (!pChar) break;
-                if (c == sdv) continue;
+              // --- СПЕЦИАЛЬНЫЙ АЛГОРИТМ ДЛЯ BLNO=10 (Шаблоны 0 и 1) ---
+              if (BlNo == 10 && (nline == bl[10] || nline == bl[10] + 1)) {
+                int xPos = -1;
+                for (int c = 0; c < 9; c++) {
+                  if (line[id][nline][c] == 4) { // Находим позицию старого камня 'x'
+                    xPos = c; break;
+                  }
+                }
 
-                // Если бит 64 установлен — это клетка для атаки
-                if (pChar & 64) {
-                    TMove atk = (TMove)((x + vec[nvec][0] * (c - sdv)) +
-                                        (y + vec[nvec][1] * (c - sdv)) * fsize);
+                if (xPos != -1) {
+                  int dist = (xPos > sdv) ? (xPos - sdv) : (sdv - xPos);
+                  int leftEnd = (xPos < sdv) ? xPos : sdv;
+                  int rightEnd = (xPos > sdv) ? xPos : sdv;
 
-                    for (int i = 0; i < MAX_ATTACK; i++) {
-                        if (destNode->attaсks[i] == atk) break;
-                        if (destNode->attaсks[i] == 0) {
-                            destNode->attaсks[i] = atk;
-                            break;
-                        }
+                  if (dist == 1) { // ПЛОТНАЯ ПАРА
+                    int emptyL = 0;
+                    for (int i = 1; i <= 3; i++)
+                      if (comp(x + vx*(leftEnd-sdv-i), y + vy*(leftEnd-sdv-i), 2)) emptyL++; else break;
+                    if (emptyL >= 3) {
+                      addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-1), y + vy*(leftEnd-sdv-1));
+                      addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-2), y + vy*(leftEnd-sdv-2));
+                    } else if (emptyL == 2) {
+                      addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-1), y + vy*(leftEnd-sdv-1));
                     }
+
+                    int emptyR = 0;
+                    for (int i = 1; i <= 3; i++)
+                      if (comp(x + vx*(rightEnd-sdv+i), y + vy*(rightEnd-sdv+i), 2)) emptyR++; else break;
+                    if (emptyR >= 3) {
+                      addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+1), y + vy*(rightEnd-sdv+1));
+                      addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+2), y + vy*(rightEnd-sdv+2));
+                    } else if (emptyR == 2) {
+                      addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+1), y + vy*(rightEnd-sdv+1));
+                    }
+                  }
+                  else if (dist == 2) { // ОДИН ПРОМЕЖУТОК
+                    addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv+1), y + vy*(leftEnd-sdv+1));
+                    if (comp(x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1), 2) && comp(x+vx*(leftEnd-sdv-2), y+vy*(leftEnd-sdv-2), 2))
+                      addAttackIfEmpty(destNode, x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1));
+                    if (comp(x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1), 2) && comp(x+vx*(rightEnd-sdv+2), y+vy*(rightEnd-sdv+2), 2))
+                      addAttackIfEmpty(destNode, x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1));
+                  }
+                  else if (dist == 3) { // ДВА ПРОМЕЖУТКА
+                    addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv+1), y + vy*(leftEnd-sdv+1));
+                    addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv+2), y + vy*(leftEnd-sdv+2));
+                  }
+                }
+              }
+              else { // --- ОБЫЧНЫЙ АЛГОРИТМ ---
+                for (int c = 0; c < 9; c++) {
+                  unsigned char pChar = line[id][nline][c];
+                  if (!pChar || c == sdv) continue;
+                  if (pChar & 64)
+                    addAttackIfEmpty(destNode, x + vx*(c-sdv), y + vy*(c-sdv));
                 }
               }
               goto next_vector;
@@ -255,9 +300,12 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
     destNode->x2 -= destNode->x2 >= 9 ? 8 : (destNode->x2+1)/2; //>= 2 ? 2 : destNode->x2 >= 1 ? 1 : 0;
   }
 
-  while (scanlines(10, t, move)) {//build 2
-    destNode->o2 += 10;
-  }
+//  while (scanlines(10, t, move)) {//build 2
+//    destNode->o2 += 10;
+//  }
+
+  int f2 = scanlines(10, t, move);
+  if (f2) destNode->o2 += f2*10;
 
         double k2 = destNode->age > 12 ? 0.1
                 : destNode->age > 10 ? 0.2
