@@ -26,7 +26,7 @@ struct CursorHistory {
     int enCount;//count of actually "Enabled" moves
     int symmX, symmY, symmXY, symmW, symmXW, symmYW, symmXYW;
     TNode *node;
-    RelativeBucket parents;
+//    RelativeBucket parents;
     int previousKlValue;
 //  bool removed;
 };

@@ -23,6 +23,8 @@ typedef uint32_t THash;
 #define CULL_RATING1 6066
 #define CULL_RATING2 13000
 
+#define MAX_ATTACK 4
+
 typedef signed short int TRating;
 
     class TNode {
@@ -54,6 +56,8 @@ typedef signed short int TRating;
 //      TNodeLink *childs;//deprecated
 //      void *reserved;
       TByte flags;
+      TMove attaсks[MAX_ATTACK]{}; // Пустые скобки инициализируют всё нулями
+
       TByte //move,
         totalDirectChilds,
         x2,x3,x4,//checks after this move of opponent

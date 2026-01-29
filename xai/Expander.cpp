@@ -61,9 +61,9 @@ void Expander ::expand(int startPass, TNode* cursor) {
         rate(cursor, node, move);
         ++cursor->totalChilds;
     } else {
-//        if (startPass == 0) {
-//            cursor->totalChilds += (node->totalChilds+1);
-//        }
+        if (startPass == 0) {
+            cursor->totalChilds += (node->totalChilds+1);
+        }
     }
 
     if (node->rating > max_rating) max_rating = node->rating;
@@ -130,12 +130,13 @@ void Expander::findMovesToExpand(int startPass) {//TODO use single iteration
                         if (scanlines(3, t, i) <= 0 && scanlines(4, t, i) <= 0) {
                             continue;//filter out nodes which allows neither close 3 nor build closed  4
                         }
-                    } else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) {
-                        if (scanlines(4, t, i) <= 0 && scanlines(5, t, i) <= 0) {
-                            rage = true;
-                            continue;//filter out nodes which not allows to build 3 or 4
-                        }
                     }
+//                     else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) {
+//                        if (scanlines(4, t, i) <= 0 && scanlines(5, t, i) <= 0) {
+//                            rage = true;
+//                            continue;//filter out nodes which not allows to build 3 or 4
+//                        }
+//                    }
 
                 }
                 newChilds.move[newChilds.count++] = i;
@@ -154,12 +155,13 @@ void Expander::findMovesToExpand(int startPass) {//TODO use single iteration
                 } else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) {
                    logger->miss3();
                 }
-            } else {
-                if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400) && rage) {
-                    //rage mode: number of childs was reduced to only those which builds 3 or 4
-                    curr->setRage(true);
-                }
             }
+//            else {
+//                if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400) && rage) {
+//                    //rage mode: number of childs was reduced to only those which builds 3 or 4
+//                    curr->setRage(true);
+//                }
+//            }
         }
         if (newChilds.count > 0) return;
         //logger->log("NEXT PASS");

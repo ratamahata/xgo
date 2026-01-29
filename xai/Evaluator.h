@@ -15,6 +15,7 @@ class Evaluator : public Cursor {
 
         protected:
         bool  scanlines(int BlNo, int &lines, int N);
+        int   scanlines(int BlNo, int &lines, int N, TNode *destNode);
 
         public:
         Evaluator(SimplyNumbers* sn, Hashtable* ht);

@@ -26,7 +26,7 @@ unsigned char line [2][linec][10]=
    "TTooo","oooTT","?oToo?","?ooTo?","oToTo","oTToo","ooTTo",
    "_TooT_","TTToo_+","+_ooTTT","ToToT_","_ToToT","_oTTo_",
 //  10: build 2  or closed 3
-   "_TxTT_","_TTxT_","_X__X_",
+   "_TxTT_","_TTxT_","~X__X~",
    "XXX__","__XXX","_XXX_","X_XX_","_XX_X","XX_X_","_X_XX",
 //11: ToT  (for the 2nd move)
    "ToT",
@@ -38,7 +38,7 @@ Evaluator::Evaluator(SimplyNumbers *simplyGen, Hashtable *movesHash)
    for(int i=0; i<10; i++)
 
     switch (line[0][j][i])
-    { case '_': line[0][j][i] = 2; break;//space
+    { case '~': line[0][j][i] = 2; break;//space (no attack)
       case 'x': line[0][j][i] = 4; break;
       case 'o': line[0][j][i] = 8; break;
       case 'T': line[0][j][i] =34; break;//X or space
@@ -47,6 +47,7 @@ Evaluator::Evaluator(SimplyNumbers *simplyGen, Hashtable *movesHash)
       case '+': line[0][j][i] =20; break;//x or #
       case '*': line[0][j][i] =52; break;//X or x or #
       case '?': line[0][j][i] =54; break;//X or x or # or space
+      case '_': line[0][j][i] =66; break;//space (attack)
     };
   memcpy(line[1][0],line[0][0],linec*10);
 
@@ -91,6 +92,74 @@ skip:     { if (c==8)
 
 //==============================================================================
 
+int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode)
+{
+  static const int bl[18] = {0,1,2,6,16,21,30,6,21,30,43,53,54,9,11,30,53};
+  static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
+  static const int p2[4] = {1,2,4,8};
+
+  int x = N % fsize, y = N / fsize;
+  int id = count & 1;
+  int totalFound = 0;
+
+  for (int nvec = 0; nvec < 4; nvec++) {
+    if (lines & p2[nvec]) {
+      for (int nline = bl[BlNo]; nline < bl[BlNo + 1]; nline++) {
+        for (int sdv = 0; sdv < 9; sdv++) {
+          if (line[id][nline][sdv] & 32) { // Точка привязки
+            bool match = true;
+
+            // Проверка совпадения шаблона
+            for (int c = 0; c < 9; c++) {
+              if (c == sdv) continue;
+              unsigned char pChar = line[id][nline][c];
+              if (!pChar) break;
+
+              // Используем только младшие биты для сравнения с полем (mask 63)
+              // чтобы бит 64 не мешал функции comp
+              if (!comp(x + vec[nvec][0] * (c - sdv),
+                        y + vec[nvec][1] * (c - sdv), pChar & 63)) {
+                match = false;
+                break;
+              }
+            }
+
+            if (match) {
+              totalFound++;
+              lines -= p2[nvec];
+
+              // Сбор атак: ищем клетки с установленным 64-м битом
+              for (int c = 0; c < 9; c++) {
+                unsigned char pChar = line[id][nline][c];
+                if (!pChar) break;
+                if (c == sdv) continue;
+
+                // Если бит 64 установлен — это клетка для атаки
+                if (pChar & 64) {
+                    TMove atk = (TMove)((x + vec[nvec][0] * (c - sdv)) +
+                                        (y + vec[nvec][1] * (c - sdv)) * fsize);
+
+                    for (int i = 0; i < MAX_ATTACK; i++) {
+                        if (destNode->attaсks[i] == atk) break;
+                        if (destNode->attaсks[i] == 0) {
+                            destNode->attaсks[i] = atk;
+                            break;
+                        }
+                    }
+                }
+              }
+              goto next_vector;
+            }
+          }
+        }
+      }
+    }
+    next_vector:;
+  }
+  return totalFound;
+}
+
+//==============================================================================
 void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRating,x3,x4,o3,o4} of dest;
   static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
 
@@ -120,9 +189,13 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
       }
 
   if (destNode->o3 > 0) {//build opened 4
-    if (scanlines(2, t, move)) {
+    int found4o = scanlines(2, t, move, destNode);
+    if (found4o) {
       destNode->o4 += 2;
       --destNode->o3;
+//TODO it is better to return with high rating here
+//      destNode->rating = 28000;
+//      return;
     }
   }
   bool c3 = true;
@@ -160,23 +233,29 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
 //    return;
 //  }
 
-  //t = 15;
-  while (scanlines(4, t, move)) {//build closed 4
-    ++destNode->o4;
-    destNode->o2 -= destNode->o2 >= 12 ? 12 : destNode->o2;
+  // 1. Сканируем на четверки. Те направления, где нашли 4, удалятся из t.
+  int found4 = scanlines(4, t, move, destNode);
+  if (found4) {
+    destNode->o4 += found4;
+    for (int i = 0; i<found4; ++i)
+        destNode->o2 -= destNode->o2 >= 12 ? 12 : destNode->o2;
+    //destNode->o2 -= found4*10;
     if (c3my) c3my = 2;
   }
 
-  while (scanlines(5, t, move)) {//build 3
-    destNode->o3 += 1;
-    destNode->o2 -= destNode->o2 >= 10 ? 10 : destNode->o2;
+  // 2. Сканируем на тройки только в ОСТАВШИХСЯ направлениях.
+  int found3 = scanlines(5, t, move, destNode);
+  if (found3) {
+    destNode->o3 += found3;
+    for (int i = 0; i<found3; ++i)
+        destNode->o2 -= destNode->o2 >= 10 ? 10 : destNode->o2;
   }
 
-  while (destNode->x2 > 0 && scanlines(9, t, move)) {//������ 2
+  while (destNode->x2 > 0 && scanlines(9, t, move)) {//close enemy's two
     destNode->x2 -= destNode->x2 >= 9 ? 8 : (destNode->x2+1)/2; //>= 2 ? 2 : destNode->x2 >= 1 ? 1 : 0;
   }
 
-  while (scanlines(10, t, move)) {//����� 2
+  while (scanlines(10, t, move)) {//build 2
     destNode->o2 += 10;
   }
 
