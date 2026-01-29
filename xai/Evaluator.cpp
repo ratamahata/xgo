@@ -154,7 +154,7 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
                   if (dist == 1) { // ПЛОТНАЯ ПАРА
                     int emptyL = 0;
                     for (int i = 1; i <= 3; i++)
-                      if (comp(x + vx*(leftEnd-sdv-i), y + vy*(leftEnd-sdv-i), 2)) emptyL++; else break;
+                      if (comp(x + vx*(leftEnd-sdv-i), y + vy*(leftEnd-sdv-i), 64)) emptyL++; else break;
                     if (emptyL >= 3) {
                       addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-1), y + vy*(leftEnd-sdv-1));
                       addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-2), y + vy*(leftEnd-sdv-2));
@@ -164,7 +164,7 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
 
                     int emptyR = 0;
                     for (int i = 1; i <= 3; i++)
-                      if (comp(x + vx*(rightEnd-sdv+i), y + vy*(rightEnd-sdv+i), 2)) emptyR++; else break;
+                      if (comp(x + vx*(rightEnd-sdv+i), y + vy*(rightEnd-sdv+i), 64)) emptyR++; else break;
                     if (emptyR >= 3) {
                       addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+1), y + vy*(rightEnd-sdv+1));
                       addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+2), y + vy*(rightEnd-sdv+2));
@@ -174,9 +174,9 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
                   }
                   else if (dist == 2) { // ОДИН ПРОМЕЖУТОК
                     addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv+1), y + vy*(leftEnd-sdv+1));
-                    if (comp(x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1), 2) && comp(x+vx*(leftEnd-sdv-2), y+vy*(leftEnd-sdv-2), 2))
+                    if (comp(x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1), 64) && comp(x+vx*(leftEnd-sdv-2), y+vy*(leftEnd-sdv-2), 64))
                       addAttackIfEmpty(destNode, x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1));
-                    if (comp(x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1), 2) && comp(x+vx*(rightEnd-sdv+2), y+vy*(rightEnd-sdv+2), 2))
+                    if (comp(x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1), 64) && comp(x+vx*(rightEnd-sdv+2), y+vy*(rightEnd-sdv+2), 64))
                       addAttackIfEmpty(destNode, x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1));
                   }
                   else if (dist == 3) { // ДВА ПРОМЕЖУТКА
@@ -304,7 +304,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
 //    destNode->o2 += 10;
 //  }
 
-  int f2 = scanlines(10, t, move);
+  int f2 = scanlines(10, t, move, destNode);
   if (f2) destNode->o2 += f2*10;
 
         double k2 = destNode->age > 12 ? 0.1
