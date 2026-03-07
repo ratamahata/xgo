@@ -10,6 +10,7 @@
 #define TOTAL_CELLS 225 //fsize*fsize, cells total
 
 #define MAX_ENABLERS 32
+#define MAX_HISTORY_ATTACKS 20
 #define MAX_RELATIVES 224 // == (fsize*fsize - 1)
 //---------------------------------------------------------------------------
 class RelativeBucket {
@@ -21,14 +22,18 @@ class RelativeBucket {
 
 struct CursorHistory {
     CursorHistory();
-    TMove en[MAX_ENABLERS],//"Enabled" moves buffer
-          move;
-    int enCount;//count of actually "Enabled" moves
+    TMove en[MAX_ENABLERS];
+    TMove move;
+    TMove attacksX[MAX_HISTORY_ATTACKS];
+    TMove attacksO[MAX_HISTORY_ATTACKS];
+    int attacksXcount;
+    int attacksOcount;
+    int enCount;
     int symmX, symmY, symmXY, symmW, symmXW, symmYW, symmXYW;
     TNode *node;
-//    RelativeBucket parents;
     int previousKlValue;
-//  bool removed;
+
+    void printAttacks(char* buffer, size_t size);
 };
 
 
@@ -38,6 +43,7 @@ public:
 
   Logger *logger;
   int getMovesCount();
+  virtual void rate(TNode *src, TNode *destNode, TMove move) = 0;
 
 protected:
 
@@ -64,6 +70,7 @@ protected:
   bool isAlllowed(TMove N);
 
 private:
+        int cnt;
         inline bool allow(int move);
         void enable(CursorHistory *curr, int x, int y, int maxDistance);
 protected:

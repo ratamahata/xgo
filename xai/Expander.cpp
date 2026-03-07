@@ -1,4 +1,5 @@
 //---------------------------------------------------------------------------
+#include <iostream>
 
 
 #pragma hdrstop
@@ -12,15 +13,52 @@
 Expander::Expander(SimplyNumbers *simplyGen, Hashtable *movesHash)
         : Relator (simplyGen, movesHash) {
   max_count = 0;
+  cnt = 0;
 }
 
 //==================================================================
 void Expander ::fullExpand(TNode* cursor) {
 
-    if (!cursor->isRage() || cursor->totalChilds < cursor->rating)  return;
+  if (!cursor->isRage() || cursor->totalChilds < 150000)  return;
+  cursor->setRage(false);
 
-    expand(1, cursor);
-    cursor->setRage(false);
+  findMovesToExpand(1);
+
+  if (newChilds.count == 0) {
+    return;
+  }
+
+  TRating max_rating = -32600;
+
+  int created = 0;
+
+  for(int i=0; i<newChilds.count; ++i) {
+
+        TMove move = newChilds.move[i];
+
+        THash newHashX = cursor->hashCodeO;
+        THash newHashO = cursor->hashCodeX * simplyGen->getHash(move);
+
+        bool isCreated;
+        TNode *node = movesHash->getOrCreate(newHashX, newHashO, cursor->age + 1, isCreated);
+
+        if (isCreated) {
+            ++created;
+            rate(cursor, node, move);
+            ++cursor->totalChilds;
+            ++cursor->totalDirectChilds;
+        }
+
+        if (node->rating > max_rating) max_rating = node->rating;
+  }
+
+  short int oldRating = cursor->rating;
+  if (!cursor->isFixedRating()) {
+        cursor->rating = (TRating)-max_rating;
+  }
+  if (created == 0 && oldRating == cursor->rating) return;
+
+  updateParents(created);
 }
 
 //adds childs to cursor node
@@ -86,7 +124,7 @@ void Expander ::expand(int startPass, TNode* cursor) {
 };
 
 //----------------------------------------------------------------------------
-
+/*
 void Expander::findMovesToExpand(int startPass) {//TODO use single iteration
     newChilds.count = 0;
     bool mode1 = gameMode == 1 &&  count == 2;
@@ -165,5 +203,64 @@ void Expander::findMovesToExpand(int startPass) {//TODO use single iteration
         }
         if (newChilds.count > 0) return;
         //logger->log("NEXT PASS");
+    }
+};
+*/
+
+
+void Expander::findMovesToExpand(int startPass) {
+    newChilds.count = 0;
+    bool mode1 = (gameMode == 1 && count == 2);
+    CursorHistory *h = current();
+    TNode* curr = h->node;
+
+    // 1. Предварительная проверка на атаки (бывший pass 0)
+    if (startPass == 0) {
+        bool forceAttack = curr->x4 > 0
+            || curr->x3 > 0 && curr->o4 == 0
+            || (curr->x2 > 0 && curr->o4 == 0 && curr->o3 == 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400));
+        bool forceDefense = (curr->o4 > 0 || curr->o3 > 0);
+
+        if (forceAttack || forceDefense) {
+            TMove* sourceAttacks = forceAttack ? h->attacksX : h->attacksO;
+            int attackCount = forceAttack ? h->attacksXcount : h->attacksOcount;
+
+            for (int i = 0; i < attackCount; ++i) {
+                TMove m = sourceAttacks[i];
+                if ((mode1 ? kl[m] <= 1 && isPerspectiveChildMode1(m) : isPerspectiveChild(m)) && isAlllowed(m)) {
+                    newChilds.move[newChilds.count++] = m;
+//                    if (cnt<10) {
+//                        std::cout << " A:" << (int)m;
+//                    }
+                }
+            }
+
+            // Если атаки найдены — выходим сразу
+            if (newChilds.count > 0) {
+
+                    curr->setRage(true);
+//                   if (cnt<10) {
+//                       std::cout << std::endl << " (X,Y):" << curr->hashCodeX << " " << curr->hashCodeO << std::endl;
+//                       ++cnt;
+//                   }
+                return;
+            }
+
+            // Если должны были атаковать/защищаться, но не нашли ходов в массиве — логируем промах
+            if (curr->x4 > 0) logger->miss5();
+            else if (curr->o4 > 0) logger->miss4o();
+            else if (curr->x3 > 0) logger->miss4();
+            else if (curr->o3 > 0) logger->miss3o();
+            else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) logger->miss3();
+
+            // После промаха выполнение пойдет ниже к общему сбору ходов (бывший pass 1)
+        }
+    }
+
+    // 2. Общий сбор ходов (выполняется, если startPass != 0 или атаки не сработали)
+    for (TMove i = 0; i < TOTAL_CELLS; ++i) {
+        if ((mode1 ? kl[i] <= 1 && isPerspectiveChildMode1(i) : isPerspectiveChild(i)) && isAlllowed(i)) {
+            newChilds.move[newChilds.count++] = i;
+        }
     }
 };

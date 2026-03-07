@@ -117,6 +117,9 @@ func sync(b *board, sd *StatusController) {
 	sd.UpdateStatus(3, xb.GetMsg4())
 	sd.UpdateStatus(4, xb.GetMsg5())
 	sd.UpdateStatus(5, xb.GetMsg6())
+	sd.UpdateStatus(6, xb.GetMsg7())
+	sd.UpdateStatus(7, xb.GetMsg9())
+	sd.UpdateStatus(8, xb.GetMsg8())
 
 	defaultSize := b.icons[0][0].Size()
 

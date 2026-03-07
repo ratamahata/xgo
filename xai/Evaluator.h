@@ -11,7 +11,9 @@
 class Evaluator : public Cursor {
 
         private:
+        int cnt;
         inline bool comp(int x, int y, unsigned char c);
+        void addAttackIfEmpty(TNode* destNode, int cx, int cy);
 
         protected:
         bool  scanlines(int BlNo, int &lines, int N);

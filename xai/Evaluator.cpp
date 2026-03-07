@@ -4,6 +4,7 @@
 #pragma hdrstop
 
 #include <memory.h>
+#include <iostream>
 #include "Evaluator.h"
 
 //---------------------------------------------------------------------------
@@ -34,6 +35,9 @@ unsigned char line [2][linec][10]=
 
 Evaluator::Evaluator(SimplyNumbers *simplyGen, Hashtable *movesHash)
         : Cursor (simplyGen, movesHash) {
+
+  cnt = 0;
+
   for(int j=0; j<linec; j++)
    for(int i=0; i<10; i++)
 
@@ -41,12 +45,12 @@ Evaluator::Evaluator(SimplyNumbers *simplyGen, Hashtable *movesHash)
     { case '~': line[0][j][i] = 2; break;//space (no attack)
       case 'x': line[0][j][i] = 4; break;
       case 'o': line[0][j][i] = 8; break;
-      case 'T': line[0][j][i] =34; break;//X or space
+      case 'T': line[0][j][i] =98; break;//X or space
       case 'X': line[0][j][i] =36; break;//X or x
       case '8': line[0][j][i] =40; break;//X or o
       case '+': line[0][j][i] =20; break;//x or #
       case '*': line[0][j][i] =52; break;//X or x or #
-      case '?': line[0][j][i] =54; break;//X or x or # or space
+      case '?': line[0][j][i]=118; break;//X or x or # or space
       case '_': line[0][j][i] =66; break;//space (attack)
     };
   memcpy(line[1][0],line[0][0],linec*10);
@@ -93,14 +97,14 @@ skip:     { if (c==8)
 //==============================================================================
 
 // Вспомогательная функция для безопасного добавления атак
-void addAttackIfEmpty(TNode* destNode, int cx, int cy) {
-    // Проверка границ поля fsize
-    if (cx >= 0 && cx < fsize && cy >= 0 && cy < fsize) {
+void Evaluator::addAttackIfEmpty(TNode* destNode, int cx, int cy) {
+    // Проверка свободно ли поле
+    if (comp(cx,cy,2)) {
         TMove atk = (TMove)(cx + cy * fsize);
         for (int i = 0; i < MAX_ATTACK; i++) {
-            if (destNode->attaсks[i] == atk) return;
-            if (destNode->attaсks[i] == 0) {
-                destNode->attaсks[i] = atk;
+            if (destNode->attacks[i] == atk) return;
+            if (destNode->attacks[i] == 0) {
+                destNode->attacks[i] = atk;
                 return;
             }
         }
@@ -137,11 +141,13 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
               totalFound++;
               lines -= p2[nvec];
 
+              //if (cnt<20) std::cout << "\nId- " << id << " BL " << BlNo << " : " << (nline == bl[10] || nline == bl[10] + 1);
+
               // --- СПЕЦИАЛЬНЫЙ АЛГОРИТМ ДЛЯ BLNO=10 (Шаблоны 0 и 1) ---
               if (BlNo == 10 && (nline == bl[10] || nline == bl[10] + 1)) {
                 int xPos = -1;
                 for (int c = 0; c < 9; c++) {
-                  if (line[id][nline][c] == 4) { // Находим позицию старого камня 'x'
+                  if (line[0][nline][c] == 4) { // Находим позицию старого камня 'x'
                     xPos = c; break;
                   }
                 }
@@ -151,10 +157,12 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
                   int leftEnd = (xPos < sdv) ? xPos : sdv;
                   int rightEnd = (xPos > sdv) ? xPos : sdv;
 
+                  //if (cnt<20) std::cout << "dist = " << dist << std::endl;
+
                   if (dist == 1) { // ПЛОТНАЯ ПАРА
                     int emptyL = 0;
                     for (int i = 1; i <= 3; i++)
-                      if (comp(x + vx*(leftEnd-sdv-i), y + vy*(leftEnd-sdv-i), 64)) emptyL++; else break;
+                      if (comp(x + vx*(leftEnd-sdv-i), y + vy*(leftEnd-sdv-i), 2)) emptyL++; else break;
                     if (emptyL >= 3) {
                       addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-1), y + vy*(leftEnd-sdv-1));
                       addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-2), y + vy*(leftEnd-sdv-2));
@@ -164,7 +172,7 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
 
                     int emptyR = 0;
                     for (int i = 1; i <= 3; i++)
-                      if (comp(x + vx*(rightEnd-sdv+i), y + vy*(rightEnd-sdv+i), 64)) emptyR++; else break;
+                      if (comp(x + vx*(rightEnd-sdv+i), y + vy*(rightEnd-sdv+i), 2)) emptyR++; else break;
                     if (emptyR >= 3) {
                       addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+1), y + vy*(rightEnd-sdv+1));
                       addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+2), y + vy*(rightEnd-sdv+2));
@@ -174,9 +182,9 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
                   }
                   else if (dist == 2) { // ОДИН ПРОМЕЖУТОК
                     addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv+1), y + vy*(leftEnd-sdv+1));
-                    if (comp(x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1), 64) && comp(x+vx*(leftEnd-sdv-2), y+vy*(leftEnd-sdv-2), 64))
+                    if (comp(x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1), 2) && comp(x+vx*(leftEnd-sdv-2), y+vy*(leftEnd-sdv-2), 2))
                       addAttackIfEmpty(destNode, x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1));
-                    if (comp(x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1), 64) && comp(x+vx*(rightEnd-sdv+2), y+vy*(rightEnd-sdv+2), 64))
+                    if (comp(x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1), 2) && comp(x+vx*(rightEnd-sdv+2), y+vy*(rightEnd-sdv+2), 2))
                       addAttackIfEmpty(destNode, x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1));
                   }
                   else if (dist == 3) { // ДВА ПРОМЕЖУТКА
@@ -185,12 +193,20 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
                   }
                 }
               }
-              else { // --- ОБЫЧНЫЙ АЛГОРИТМ ---
+              else if (BlNo == 2 || BlNo == 4 || BlNo == 5 || BlNo == 10) { // --- ОБЫЧНЫЙ АЛГОРИТМ ---
+
+            //if (cnt<20) std::cout << "\nId* " << id;
+
                 for (int c = 0; c < 9; c++) {
                   unsigned char pChar = line[id][nline][c];
                   if (!pChar || c == sdv) continue;
-                  if (pChar & 64)
+                  if (pChar & 64) {
+//                    if (cnt<20) {
+//                        std::cout << "\nId " << id;
+//                        cnt++;
+//                    }
                     addAttackIfEmpty(destNode, x + vx*(c-sdv), y + vy*(c-sdv));
+                  }
                 }
               }
               goto next_vector;
@@ -385,13 +401,7 @@ exit:
   }
 #undef c3my
 
-
   destNode->rating = ret;
 
-
 };
-
-
-
-
 

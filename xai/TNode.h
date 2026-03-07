@@ -56,7 +56,7 @@ typedef signed short int TRating;
 //      TNodeLink *childs;//deprecated
 //      void *reserved;
       TByte flags;
-      TMove attaсks[MAX_ATTACK]{}; // Пустые скобки инициализируют всё нулями
+      TMove attacks[MAX_ATTACK]{}; // Пустые скобки инициализируют всё нулями
 
       TByte //move,
         totalDirectChilds,
@@ -66,6 +66,10 @@ typedef signed short int TRating;
 
       THash hashCodeX, hashCodeO;
       TNode *next;
+
+      void printPosition(char* buffer, size_t size);
+      void printScores(char* buffer, size_t size);
+
     };
 
 

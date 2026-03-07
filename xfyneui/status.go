@@ -6,11 +6,11 @@ import (
 
 // StatusController holds the 5 strings bound to the UI
 type StatusController struct {
-	Lines [6]binding.String
+	Lines [9]binding.String
 }
 
 func (sd *StatusController) UpdateStatus(index int, val string) {
-	if index >= 0 && index < 6 {
+	if index >= 0 && index < 9 {
 		sd.Lines[index].Set(val) // Use the field 'Lines' belonging to StatusController
 	}
 }

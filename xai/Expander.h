@@ -23,6 +23,7 @@ protected:
         void fullExpand(TNode* cursor);
 //        TNode* createNode(THash hX, THash hO, TByte age);        
 private:
+        int cnt;
         MovesBucket newChilds;
         void findMovesToExpand(int start);
 };

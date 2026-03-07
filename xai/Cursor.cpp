@@ -3,6 +3,7 @@
 
 //#pragma hdrstop
 
+#include <iostream>
 #include <memory.h>
 #include "Cursor.h"
 
@@ -15,6 +16,47 @@ CursorHistory::CursorHistory() {
         memset((void*)en, 0, sizeof(CursorHistory));
 };
 
+#include <cstdio> // Для snprintf
+
+void CursorHistory::printAttacks(char* buffer, size_t size) {
+    if (size == 0) return;
+
+    char* ptr = buffer;
+    size_t remaining = size;
+    int written = 0;
+
+    // Функция-помощник для печати одного массива
+    auto printArray = [&](const char* label, TMove* arr, int count) {
+        // Печатаем заголовок (например, "X: ")
+        written = snprintf(ptr, remaining, "%s: ", label);
+        if (written > 0 && (size_t)written < remaining) {
+            ptr += written;
+            remaining -= written;
+        }
+
+        for (int i = 0; i < count && arr[i]; ++i) {
+            // Кастуем каждый элемент TMove к int и печатаем через запятую
+            written = snprintf(ptr, remaining, "%d%s", (int)arr[i], (i == count - 1 ? "" : ", "));
+
+            if (written > 0 && (size_t)written < remaining) {
+                ptr += written;
+                remaining -= written;
+            } else {
+                break; // Буфер переполнен
+            }
+        }
+
+        written = snprintf(ptr, remaining, " ");
+        if (written > 0 && (size_t)written < remaining) {
+            ptr += written;
+            remaining -= written;
+        }
+    };
+
+    printArray("A.X", attacksX, attacksXcount);
+    printArray("A.O", attacksO, attacksOcount);
+}
+
 //-------------------------------  CURSOR -----------------------------------
 
 Cursor::Cursor(SimplyNumbers *simplyGen, Hashtable *movesHash) {
@@ -24,6 +66,7 @@ Cursor::Cursor(SimplyNumbers *simplyGen, Hashtable *movesHash) {
         count = 0;
         count0 = 0;
         building = false;
+        cnt = 0;
 };
 
 //=============================================================================
@@ -70,6 +113,10 @@ bool Cursor::forward(TMove N) {
     return false;
 }
   if (created) {
+
+    rate(node, nextNode, N);
+    ++node->totalChilds;
+
     logger->missNode(nextNode);
     logger->log("Warning: not existed node.");
   }
@@ -93,6 +140,56 @@ bool Cursor::forward(TMove N, TNode* node) {
   curr->node = node;
   curr->move = N;
   curr->previousKlValue = prevVal;
+
+
+    // 1. Наследование и Своп (атаки противника становятся моими и наоборот)
+    if (prev) {
+        curr->attacksXcount = prev->attacksOcount;
+        curr->attacksOcount = prev->attacksXcount;
+        for (int i = 0; i < curr->attacksXcount; ++i) curr->attacksX[i] = prev->attacksO[i];
+        for (int i = 0; i < curr->attacksOcount; ++i) curr->attacksO[i] = prev->attacksX[i];
+    } else {
+        curr->attacksXcount = 0;
+        curr->attacksOcount = 0;
+    }
+
+    // 2. Удаление хода N (замена последним элементом + выход)
+    for (int i = 0; i < curr->attacksXcount; ++i) {
+        if (curr->attacksX[i] == N) {
+            curr->attacksX[i] = curr->attacksX[curr->attacksXcount - 1];
+            curr->attacksXcount--;
+            break;
+        }
+    }
+    for (int i = 0; i < curr->attacksOcount; ++i) {
+        if (curr->attacksO[i] == N) {
+            curr->attacksO[i] = curr->attacksO[curr->attacksOcount - 1];
+            curr->attacksOcount--;
+            break;
+        }
+    }
+
+    // 3. Добавление новых атак из TNode в attacksO (атаки текущего игрока)
+    if (node) {
+        for (int i = 0; i < MAX_ATTACK; ++i) {
+            TMove newAttack = node->attacks[i];
+            if (newAttack == 0) break;
+            bool duplicate = false;
+            for(int j = 0; j < curr->attacksOcount; ++j) {
+                if(curr->attacksO[j] == newAttack) { duplicate = true; break; }
+            }
+            if (!duplicate && curr->attacksOcount < MAX_HISTORY_ATTACKS) {
+                curr->attacksO[curr->attacksOcount++] = newAttack;
+//                if (cnt<10) {
+//                    std::cout << " At:" << (int)newAttack;
+//                    std::cout << std::endl << " (`X,Y):" << node->hashCodeX << " " << node->hashCodeO << std::endl;
+//                    ++cnt;
+//                }
+            }
+        }
+
+    }
+
 
   //begin: update simmetries history
         int d = 0,i;

@@ -21,6 +21,39 @@ TNode::TNode() {
 };
 
 
+#include <cstdio>
+#include <string>
+
+// Метод 1: Hash и список атак
+void TNode::printPosition(char* buffer, size_t size) {
+    // Сначала печатаем заголовок с хешами
+    int offset = snprintf(buffer, size, "Hash %llu / %llu",
+                          (unsigned long long)hashCodeX,
+                          (unsigned long long)hashCodeO);
+
+    if (attacks[0]) {
+        offset += snprintf(buffer+offset, size-offset, ", Attacks: ");
+    }
+
+    // Добавляем значения из массива attacks через запятую
+    for (int i = 0; i < MAX_ATTACK; ++i) {
+        if (!attacks[i]) break;
+        // Условие (attacks[i] != 0) добавлено, если нужно выводить только непустые ходы
+        int written = snprintf(buffer + offset, size - offset, "%d%s",
+                               (int)attacks[i],
+                               (i == MAX_ATTACK - 1) ? "" : ", ");
+        offset += written;
+        if (offset >= size) break; // Защита от переполнения буфера
+    }
+}
+
+// Метод 2: Счетчики x и o
+void TNode::printScores(char* buffer, size_t size) {
+    snprintf(buffer, size, "%d+%d+%d / %d+%d+%d",
+             (int)o4, (int)o3, (int)o2,
+             (int)x4, (int)x3, (int)x2);
+}
+
 /*
 //==================================================================
 int TNode::removeChild(TNode *child) {

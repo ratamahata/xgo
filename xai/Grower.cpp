@@ -252,7 +252,7 @@ void Grower::grow() {
 
               sprintf(msg2, "Rating: %d / %d",
                         getFirstNode()->rating,
-                        lastMove()->rating);
+                        node->rating);
 
               sprintf(msg3, "Max path length: %d",
                         max_count);
@@ -280,6 +280,10 @@ void Grower::grow() {
                         );
 
               logger->printMissStats(msg6);
+
+              node->printPosition(msg7, 200);
+              node->printScores(msg8, 200);
+              current()->printAttacks(msg9, 200);
 
 /* TODO
               if (xo != NULL) {
@@ -360,6 +364,18 @@ char* Grower::getMsg5() {
 
 char* Grower::getMsg6() {
   return msg6;
+};
+
+char* Grower::getMsg7() {
+  return msg7;
+};
+
+char* Grower::getMsg8() {
+  return msg8;
+};
+
+char* Grower::getMsg9() {
+  return msg9;
 };
 
 char* Grower::getMsgStatus() {
