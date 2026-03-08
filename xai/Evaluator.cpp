@@ -185,6 +185,19 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode, int &tota
                                 } else if (BlNo == 2 || BlNo == 4 || BlNo == 5 || BlNo == 10) {
                                     for (int c = 0; c < 9; c++)
                                         if (c != sdv && (line[id][nline][c] & 64)) updateRange(c);
+
+                                    // --- ЛОГИКА ДЛЯ ШАБЛОНА "__XXX_" (BlNo 5, индекс 1) ---
+                                    if (BlNo == 5 && nline == bl[5] + 1) {
+                                        // Находим границы текущего совпадения в цикле sdv
+                                        // Шаблон "__XXX_" имеет длину 6. Он занимает индексы от 0 до 5 относительно начала.
+                                        // Но нам проще проверить клетки сразу ЗА границами найденных атак.
+                                        if (firstC != -1) {
+                                            // Проверяем клетку СПРАВА от последней найденной атаки
+                                            if (lastC < 8) {
+                                                updateRange(lastC + 1);
+                                            }
+                                        }
+                                    }
                                 }
 
                                 if (firstC != -1) {
@@ -206,63 +219,56 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode, int &tota
 
 //==============================================================================
 
-  void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
+void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
+    // 1. Поиск srcTotal, начиная от src->ownAttacks (т.к. до этого индекса идут свои)
+    int srcTotal = src->ownAttacks;
+    while (srcTotal < MAX_ATTACK_2 && (src->attacks[srcTotal].l != 0 || src->attacks[srcTotal].r != 0)) {
+        srcTotal++;
+    }
+
+    destNode->ownAttacks = 0;
+    int nAttacks = 0;
+
+    // Лямбда для проверки блокировки (без изменений)
+    auto isMoveBlockingAttack = [&](const TAttack& atk, TMove m) {
+        if (atk.l == 0) return false;
+        if (m == atk.l || m == atk.r) return true;
+        int x1 = atk.l % fsize, y1 = atk.l / fsize;
+        int x2 = atk.r % fsize, y2 = atk.r / fsize;
+        int mx = m % fsize, my = m / fsize;
+        bool withinX = (mx >= x1 && mx <= x2) || (mx >= x2 && mx <= x1);
+        bool withinY = (my >= y1 && my <= y2) || (my >= y2 && my <= y1);
+        bool collinear = (my - y1) * (x2 - x1) == (y2 - y1) * (mx - x1);
+        return collinear && withinX && withinY;
+    };
+
+    // 2. Переносим атаки оппонента (из src) -> они становятся НАШИМИ в destNode
+    // Применяем фильтр: если наш ход move попал в атаку оппонента, она НЕ переносится
+    for (int i = src->ownAttacks; i < srcTotal; ++i) {
+        if (destNode->ownAttacks < MAX_ATTACK_1) {
+            if (!isMoveBlockingAttack(src->attacks[i], move)) {
+                destNode->attacks[nAttacks++] = src->attacks[i];
+                destNode->ownAttacks++;
+            }
+        }
+    }
+
+    // 3. Переносим наши старые атаки (из src) -> они становятся ЧУЖИМИ в destNode
+    // (Здесь тоже фильтруем, так как наш ход мог закрыть свою же старую угрозу)
+    for (int i = 0; i < src->ownAttacks; ++i) {
+        if (nAttacks < MAX_ATTACK_2) {
+            if (!isMoveBlockingAttack(src->attacks[i], move)) {
+                destNode->attacks[nAttacks++] = src->attacks[i];
+            }
+        }
+    }
+
+    // 4. Обнуляем только ОДИН элемент в хвосте (маркер конца списка), если есть место
+    if (nAttacks < MAX_ATTACK_2) {
+        destNode->attacks[nAttacks] = {0, 0};
+    }
+
   static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
-
-  int srcTotal = 0;
-  while (srcTotal < MAX_ATTACK_2 && (src->attacks[srcTotal].l != 0 || src->attacks[srcTotal].r != 0)) {
-      srcTotal++;
-  }
-
-  destNode->ownAttacks = 0;
-  int nAttacks = 0;
-
-  // Вспомогательная лямбда для проверки: перекрыл ли текущий ход 'move' атаку 'atk'
-  auto isMoveBlockingAttack = [&](const TAttack& atk, TMove m) {
-      if (atk.l == 0) return false;
-      if (m == atk.l || m == atk.r) return true;
-
-      int x1 = atk.l % fsize, y1 = atk.l / fsize;
-      int x2 = atk.r % fsize, y2 = atk.r / fsize;
-      int mx = m % fsize, my = m / fsize;
-
-      // Проверка на нахождение точки на отрезке (коллинеарность + границы)
-      // В Го-моку достаточно проверить, что координаты mx, my лежат между краями
-      bool withinX = (mx >= x1 && mx <= x2) || (mx >= x2 && mx <= x1);
-      bool withinY = (my >= y1 && my <= y2) || (my >= y2 && my <= y1);
-
-      // Проверка коллинеарности через векторное произведение (должно быть 0)
-      bool collinear = (my - y1) * (x2 - x1) == (y2 - y1) * (mx - x1);
-
-      return collinear && withinX && withinY;
-  };
-
-  // 1. Переносим атаки оппонента (в src) -> они становятся НАШИМИ в destNode
-  // Атаки оппонента в src лежат в диапазоне [src->ownAttacks, srcTotal)
-  for (int i = src->ownAttacks; i < srcTotal; ++i) {
-      // Атаки оппонента в src НЕ могут быть перекрыты нашим ходом 'move',
-      // так как оппонент только что походил и создал их (или они остались).
-      // Но по логике Го-моку мы их просто переносим.
-      if (destNode->ownAttacks < MAX_ATTACK_1) {
-          destNode->attacks[nAttacks++] = src->attacks[i];
-          destNode->ownAttacks++;
-      }
-  }
-
-  // 2. Переносим наши старые атаки (в src) -> они становятся ЧУЖИМИ в destNode
-  // Исключаем те, которые были перекрыты текущим ходом 'move'
-  for (int i = 0; i < src->ownAttacks; ++i) {
-      if (nAttacks < MAX_ATTACK_2) {
-          if (!isMoveBlockingAttack(src->attacks[i], move)) {
-              destNode->attacks[nAttacks++] = src->attacks[i];
-          }
-      }
-  }
-
-  // 3. Обнуляем хвост массива
-  for (int i = nAttacks; i < MAX_ATTACK_2; ++i) {
-      destNode->attacks[i] = {0, 0};
-  }
 
   destNode->o2 = src->x2;
   destNode->o3 = src->x3;

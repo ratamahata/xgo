@@ -19,8 +19,14 @@ Expander::Expander(SimplyNumbers *simplyGen, Hashtable *movesHash)
 //==================================================================
 void Expander ::fullExpand(TNode* cursor) {
 
-  if (!cursor->isRage() || cursor->totalChilds < 150000)  return;
-  cursor->setRage(false);
+  if (cursor->isRageAttack() && cursor->rating < -1000) {
+  }
+  else {
+    if (!cursor->isRageAny() || cursor->totalChilds < cursor->totalDirectChilds * 60000)  return;
+  }
+
+  cursor->setRageAttack(false);
+  cursor->setRageDef(false);
 
   findMovesToExpand(1);
 
@@ -215,20 +221,32 @@ void Expander::findMovesToExpand(int startPass) {
     TNode* curr = h->node;
 
     if (startPass == 0) {
-        bool forceAttack = curr->x4 > 0
-            || (curr->x3 > 0 && curr->o4 == 0)
-            || (curr->x2 > 0 && curr->o4 == 0 && curr->o3 == 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400));
 
-        bool forceDefense = (curr->o4 > 0 || curr->o3 > 0);
+        bool forceAttack = false, forceDefense = false;
 
-        if (curr->hashCodeX==34 && curr->hashCodeO==133) {
-
-            std::cout << "34_133 A/D: " << forceAttack << " " << forceDefense;
+        if (curr->x4 > 0) {
+            forceAttack = true;//build 5
+        } else if (curr->o4 > 0) {
+            forceDefense = true;//close 4
+        } else if (curr->o3 > 0) {
+            forceDefense = true;//close 3
+            if (curr->x3 > 0) {
+                forceAttack = true;//try build 4
+            }
+        } else {
+            if ((curr->x3 > 0 || curr->x2 > 0) && curr->rating < -200) {
+                forceAttack = true;//build 3 or 4
+            }  else if (curr->o2 > 0 && curr->rating > 200) {
+                forceDefense = true;//close 2
+                if (curr->x3 > 0) {
+                    forceAttack = true;//try build 4
+                }
+            }
         }
 
         if (forceAttack || forceDefense) {
             int startIdx = forceDefense ? 0 : curr->ownAttacks;
-            int endIdx = forceDefense ? curr->ownAttacks : MAX_ATTACK_2;
+            int endIdx = forceAttack ?  MAX_ATTACK_2 : curr->ownAttacks;
 
             for (int i = startIdx; i < endIdx; ++i) {
                 TAttack &atk = curr->attacks[i];
@@ -270,7 +288,8 @@ void Expander::findMovesToExpand(int startPass) {
             }
 
             if (newChilds.count > 0) {
-                curr->setRage(true);
+                if (forceAttack) curr->setRageAttack(true);
+                if (forceDefense) curr->setRageDef(true);
                 return;
             }
 

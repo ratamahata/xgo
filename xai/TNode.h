@@ -28,6 +28,10 @@ typedef uint32_t THash;
 
 typedef signed short int TRating;
 
+#define FLAG_FIXED_RATING 1 // 00000001
+#define FLAG_RAGE_ATTACK 2 // 00000010
+#define FLAG_RAGE_DEF    4 // 00000100
+
     class TAttack
     {
         public:
@@ -45,8 +49,12 @@ typedef signed short int TRating;
       TNode();
       void setFixedRating(bool);
       bool isFixedRating();
-      void setRage(bool);
-      bool isRage();
+
+    void setRageAttack(bool set);
+    bool isRageAttack();
+    void setRageDef(bool set);
+    bool isRageDef();
+    bool isRageAny();
 
       void update(short int newRating, unsigned int addedChilds);
       int ratingToTotalChilds();

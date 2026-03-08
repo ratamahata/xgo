@@ -239,15 +239,32 @@ void TNode::update(short int newRating, unsigned int addedChilds) {
 //==================================================================
 
 void TNode::setFixedRating(bool set) {
-    if (set) flags |= 1; else flags &= 254;
+    if (set) flags |= FLAG_FIXED_RATING;
+    else flags &= ~FLAG_FIXED_RATING;
 };
 bool TNode::isFixedRating() {
-    return flags&1 != 0;
-};
-void TNode::setRage(bool set) {
-    if (set) flags |= 2; else flags &= 253;
-};
-bool TNode::isRage() {
-    return flags&2 != 0;
+    return (flags & FLAG_FIXED_RATING) != 0;
 };
 
+// --- Управление флагом Атаки ---
+void TNode::setRageAttack(bool set) {
+    if (set) flags |= FLAG_RAGE_ATTACK;
+    else flags &= ~FLAG_RAGE_ATTACK;
+}
+bool TNode::isRageAttack() {
+    return (flags & FLAG_RAGE_ATTACK) != 0;
+}
+
+// --- Управление флагом Защиты ---
+void TNode::setRageDef(bool set) {
+    if (set) flags |= FLAG_RAGE_DEF;
+    else flags &= ~FLAG_RAGE_DEF;
+}
+bool TNode::isRageDef() {
+    return (flags & FLAG_RAGE_DEF) != 0;
+}
+
+// Общий метод (если нужно проверить, является ли узел "форсированным" в принципе)
+bool TNode::isRageAny() {
+    return (flags & (FLAG_RAGE_ATTACK | FLAG_RAGE_DEF)) != 0;
+}
