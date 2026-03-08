@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-
+#include <iostream>
 
 #pragma hdrstop
 
@@ -20,7 +20,7 @@ Grower::Grower(SimplyNumbers *simplyGen, Hashtable *movesHash,
 
     userMoveRequested = 255;
     forward(112, node);
-    expand(0, node);
+    expand(1, node);
 };
 
 
@@ -283,7 +283,7 @@ void Grower::grow() {
 
               node->printPosition(msg7, 200);
               node->printScores(msg8, 200);
-              current()->printAttacks(msg9, 200);
+              //current()->printAttacks(msg9, 200);
 
 /* TODO
               if (xo != NULL) {
@@ -324,6 +324,10 @@ void Grower::restartClick() {
     restartRequested = true;
 }
 
+void Grower::takeBackClick() {
+
+    takeBackRequested = true;
+}
 
 //------------------------
 Grower* xo = NULL;
@@ -335,6 +339,7 @@ Grower* getXBoard(int gameMode) {
         Logger *logger = new Logger();
         SimplyNumbers *sn = new SimplyNumbers();
         Hashtable *ht = new Hashtable(logger);
+        std::cout << "Start!\n";
         xo = new Grower(sn, ht, gameMode);
         xo->logger = logger;
     }

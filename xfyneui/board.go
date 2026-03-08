@@ -62,6 +62,22 @@ func (b *board) Reset(initial bool) {
 	}
 }
 
+func (b *board) ForceNextMove() {
+    b.gb.MoveClick()
+}
+
+func (b *board) TakeBack() {
+
+    b.gb.TakeBackClick()
+
+	for r := 0; r < 15; r++ {
+		for c := 0; c < 15; c++ {
+			b.pieces[r][c] = 0
+		}
+	}
+
+}
+
 type boardIcon struct {
 	widget.Icon
 	board       *board

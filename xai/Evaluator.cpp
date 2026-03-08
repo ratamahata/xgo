@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-
+#include <iostream>
 
 #pragma hdrstop
 
@@ -96,133 +96,173 @@ skip:     { if (c==8)
 
 //==============================================================================
 
-// Вспомогательная функция для безопасного добавления атак
-void Evaluator::addAttackIfEmpty(TNode* destNode, int cx, int cy) {
-    // Проверка свободно ли поле
-    if (comp(cx,cy,2)) {
-        TMove atk = (TMove)(cx + cy * fsize);
-        for (int i = 0; i < MAX_ATTACK; i++) {
-            if (destNode->attacks[i] == atk) return;
-            if (destNode->attacks[i] == 0) {
-                destNode->attacks[i] = atk;
-                return;
-            }
-        }
+void Evaluator::addAttackPair(TNode* destNode, int x1, int y1, int x2, int y2, int &totalAttacks) {
+    TMove m1 = (TMove)(x1 + y1 * fsize);
+    TMove m2 = (TMove)(x2 + y2 * fsize);
+
+    // 1. Проверка на дубликаты
+    for (int i = 0; i < totalAttacks; i++) {
+        if (destNode->attacks[i].l == m1 && destNode->attacks[i].r == m2) return;
     }
+
+    // Лимит именно СВОИХ атак
+    if (destNode->ownAttacks >= MAX_ATTACK_1) return;
+
+    // Если массив полон, но есть чужие атаки (ownAttacks < totalAttacks)
+    // Мы "съедаем" одну чужую атаку, уменьшая totalAttacks, чтобы сдвиг сработал
+    if (totalAttacks >= MAX_ATTACK_2 && destNode->ownAttacks < totalAttacks) {
+        totalAttacks = MAX_ATTACK_2 - 1;
+    }
+
+    // Если всё еще нет места (массив забит только своими)
+    if (totalAttacks >= MAX_ATTACK_2) return;
+
+    // Сдвигаем чужие атаки вправо, чтобы освободить слот сразу после блока своих
+    for (int i = totalAttacks; i > destNode->ownAttacks; i--) {
+        destNode->attacks[i] = destNode->attacks[i - 1];
+    }
+
+    // Пишем свою атаку и обновляем счетчики
+    destNode->attacks[destNode->ownAttacks].l = m1;
+    destNode->attacks[destNode->ownAttacks].r = m2;
+    destNode->ownAttacks++;
+    totalAttacks++;
 }
 
-int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode) {
-  static const int bl[18] = {0,1,2,6,16,21,30,6,21,30,43,53,54,9,11,30,53};
-  static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
-  static const int p2[4] = {1,2,4,8};
 
-  int x = N % fsize, y = N / fsize;
-  int id = count & 1;
-  int totalFound = 0;
 
-  for (int nvec = 0; nvec < 4; nvec++) {
-    if (lines & p2[nvec]) {
-      for (int nline = bl[BlNo]; nline < bl[BlNo + 1]; nline++) {
-        for (int sdv = 0; sdv < 9; sdv++) {
-          if (line[id][nline][sdv] & 32) {
-            bool match = true;
-            int vx = vec[nvec][0], vy = vec[nvec][1];
+int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode, int &totalAttacks) {
+    static const int bl[18] = {0, 1, 2, 6, 16, 21, 30, 6, 21, 30, 43, 53, 54, 9, 11, 30, 53};
+    static const int vec[4][2] = {{1, 1}, {1, -1}, {1, 0}, {0, 1}};
+    static const int p2[4] = {1, 2, 4, 8};
 
-            for (int c = 0; c < 9; c++) {
-              if (c == sdv) continue;
-              unsigned char pChar = line[id][nline][c];
-              if (!pChar) break;
-              if (!comp(x + vx * (c - sdv), y + vy * (c - sdv), pChar & 63)) {
-                match = false; break;
-              }
-            }
+    int x = N % fsize, y = N / fsize;
+    int id = count & 1;
+    int totalFound = 0;
 
-            if (match) {
-              totalFound++;
-              lines -= p2[nvec];
+    for (int nvec = 0; nvec < 4; nvec++) {
+        if (lines & p2[nvec]) {
+            for (int nline = bl[BlNo]; nline < bl[BlNo + 1]; nline++) {
+                for (int sdv = 0; sdv < 9; sdv++) {
+                    if (line[id][nline][sdv] & 32) {
+                        bool match = true;
+                        int vx = vec[nvec][0], vy = vec[nvec][1];
 
-              //if (cnt<20) std::cout << "\nId- " << id << " BL " << BlNo << " : " << (nline == bl[10] || nline == bl[10] + 1);
+                        for (int c = 0; c < 9; c++) {
+                            if (c == sdv) continue;
+                            unsigned char pChar = line[id][nline][c];
+                            if (!pChar) break;
+                            if (!comp(x + vx * (c - sdv), y + vy * (c - sdv), pChar & 63)) {
+                                match = false; break;
+                            }
+                        }
 
-              // --- СПЕЦИАЛЬНЫЙ АЛГОРИТМ ДЛЯ BLNO=10 (Шаблоны 0 и 1) ---
-              if (BlNo == 10 && (nline == bl[10] || nline == bl[10] + 1)) {
-                int xPos = -1;
-                for (int c = 0; c < 9; c++) {
-                  if (line[0][nline][c] == 4) { // Находим позицию старого камня 'x'
-                    xPos = c; break;
-                  }
-                }
+                        if (match) {
+                            totalFound++;
+                            lines -= p2[nvec];
 
-                if (xPos != -1) {
-                  int dist = (xPos > sdv) ? (xPos - sdv) : (sdv - xPos);
-                  int leftEnd = (xPos < sdv) ? xPos : sdv;
-                  int rightEnd = (xPos > sdv) ? xPos : sdv;
+                            if (destNode) {
+                                int firstC = -1, lastC = -1;
+                                auto updateRange = [&](int cIndex) {
+                                    if (cIndex < 0 || cIndex >= 9) return;
+                                    if (comp(x + vx * (cIndex - sdv), y + vy * (cIndex - sdv), 2)) {
+                                        if (firstC == -1 || cIndex < firstC) firstC = cIndex;
+                                        if (lastC == -1 || cIndex > lastC) lastC = cIndex;
+                                    }
+                                };
 
-                  //if (cnt<20) std::cout << "dist = " << dist << std::endl;
+                                if (BlNo == 10 && (nline == bl[10] || nline == bl[10] + 1)) {
+                                    int xPos = -1;
+                                    for (int c = 0; c < 9; c++) if (line[0][nline][c] == 4) { xPos = c; break; }
+                                    if (xPos != -1) {
+                                        int leftEnd = (xPos < sdv) ? xPos : sdv;
+                                        int rightEnd = (xPos > sdv) ? xPos : sdv;
+                                        int dist = (xPos > sdv) ? (xPos - sdv) : (sdv - xPos);
+                                        if (dist == 1) { updateRange(leftEnd-1); updateRange(leftEnd-2); updateRange(rightEnd+1); updateRange(rightEnd+2); }
+                                        else if (dist == 2) { updateRange(leftEnd+1); updateRange(leftEnd-1); updateRange(rightEnd+1); }
+                                        else if (dist == 3) { updateRange(leftEnd+1); updateRange(leftEnd+2); }
+                                    }
+                                } else if (BlNo == 2 || BlNo == 4 || BlNo == 5 || BlNo == 10) {
+                                    for (int c = 0; c < 9; c++)
+                                        if (c != sdv && (line[id][nline][c] & 64)) updateRange(c);
+                                }
 
-                  if (dist == 1) { // ПЛОТНАЯ ПАРА
-                    int emptyL = 0;
-                    for (int i = 1; i <= 3; i++)
-                      if (comp(x + vx*(leftEnd-sdv-i), y + vy*(leftEnd-sdv-i), 2)) emptyL++; else break;
-                    if (emptyL >= 3) {
-                      addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-1), y + vy*(leftEnd-sdv-1));
-                      addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-2), y + vy*(leftEnd-sdv-2));
-                    } else if (emptyL == 2) {
-                      addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv-1), y + vy*(leftEnd-sdv-1));
+                                if (firstC != -1) {
+                                    addAttackPair(destNode,
+                                        x + vx * (firstC - sdv), y + vy * (firstC - sdv),
+                                        x + vx * (lastC - sdv),  y + vy * (lastC - sdv), totalAttacks);
+                                }
+                            }
+                            goto next_vector;
+                        }
                     }
-
-                    int emptyR = 0;
-                    for (int i = 1; i <= 3; i++)
-                      if (comp(x + vx*(rightEnd-sdv+i), y + vy*(rightEnd-sdv+i), 2)) emptyR++; else break;
-                    if (emptyR >= 3) {
-                      addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+1), y + vy*(rightEnd-sdv+1));
-                      addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+2), y + vy*(rightEnd-sdv+2));
-                    } else if (emptyR == 2) {
-                      addAttackIfEmpty(destNode, x + vx*(rightEnd-sdv+1), y + vy*(rightEnd-sdv+1));
-                    }
-                  }
-                  else if (dist == 2) { // ОДИН ПРОМЕЖУТОК
-                    addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv+1), y + vy*(leftEnd-sdv+1));
-                    if (comp(x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1), 2) && comp(x+vx*(leftEnd-sdv-2), y+vy*(leftEnd-sdv-2), 2))
-                      addAttackIfEmpty(destNode, x+vx*(leftEnd-sdv-1), y+vy*(leftEnd-sdv-1));
-                    if (comp(x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1), 2) && comp(x+vx*(rightEnd-sdv+2), y+vy*(rightEnd-sdv+2), 2))
-                      addAttackIfEmpty(destNode, x+vx*(rightEnd-sdv+1), y+vy*(rightEnd-sdv+1));
-                  }
-                  else if (dist == 3) { // ДВА ПРОМЕЖУТКА
-                    addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv+1), y + vy*(leftEnd-sdv+1));
-                    addAttackIfEmpty(destNode, x + vx*(leftEnd-sdv+2), y + vy*(leftEnd-sdv+2));
-                  }
                 }
-              }
-              else if (BlNo == 2 || BlNo == 4 || BlNo == 5 || BlNo == 10) { // --- ОБЫЧНЫЙ АЛГОРИТМ ---
-
-            //if (cnt<20) std::cout << "\nId* " << id;
-
-                for (int c = 0; c < 9; c++) {
-                  unsigned char pChar = line[id][nline][c];
-                  if (!pChar || c == sdv) continue;
-                  if (pChar & 64) {
-//                    if (cnt<20) {
-//                        std::cout << "\nId " << id;
-//                        cnt++;
-//                    }
-                    addAttackIfEmpty(destNode, x + vx*(c-sdv), y + vy*(c-sdv));
-                  }
-                }
-              }
-              goto next_vector;
             }
-          }
         }
-      }
+        next_vector:;
     }
-    next_vector:;
-  }
-  return totalFound;
+    return totalFound;
 }
 
 //==============================================================================
-void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRating,x3,x4,o3,o4} of dest;
+
+  void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
   static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
+
+  int srcTotal = 0;
+  while (srcTotal < MAX_ATTACK_2 && (src->attacks[srcTotal].l != 0 || src->attacks[srcTotal].r != 0)) {
+      srcTotal++;
+  }
+
+  destNode->ownAttacks = 0;
+  int nAttacks = 0;
+
+  // Вспомогательная лямбда для проверки: перекрыл ли текущий ход 'move' атаку 'atk'
+  auto isMoveBlockingAttack = [&](const TAttack& atk, TMove m) {
+      if (atk.l == 0) return false;
+      if (m == atk.l || m == atk.r) return true;
+
+      int x1 = atk.l % fsize, y1 = atk.l / fsize;
+      int x2 = atk.r % fsize, y2 = atk.r / fsize;
+      int mx = m % fsize, my = m / fsize;
+
+      // Проверка на нахождение точки на отрезке (коллинеарность + границы)
+      // В Го-моку достаточно проверить, что координаты mx, my лежат между краями
+      bool withinX = (mx >= x1 && mx <= x2) || (mx >= x2 && mx <= x1);
+      bool withinY = (my >= y1 && my <= y2) || (my >= y2 && my <= y1);
+
+      // Проверка коллинеарности через векторное произведение (должно быть 0)
+      bool collinear = (my - y1) * (x2 - x1) == (y2 - y1) * (mx - x1);
+
+      return collinear && withinX && withinY;
+  };
+
+  // 1. Переносим атаки оппонента (в src) -> они становятся НАШИМИ в destNode
+  // Атаки оппонента в src лежат в диапазоне [src->ownAttacks, srcTotal)
+  for (int i = src->ownAttacks; i < srcTotal; ++i) {
+      // Атаки оппонента в src НЕ могут быть перекрыты нашим ходом 'move',
+      // так как оппонент только что походил и создал их (или они остались).
+      // Но по логике Го-моку мы их просто переносим.
+      if (destNode->ownAttacks < MAX_ATTACK_1) {
+          destNode->attacks[nAttacks++] = src->attacks[i];
+          destNode->ownAttacks++;
+      }
+  }
+
+  // 2. Переносим наши старые атаки (в src) -> они становятся ЧУЖИМИ в destNode
+  // Исключаем те, которые были перекрыты текущим ходом 'move'
+  for (int i = 0; i < src->ownAttacks; ++i) {
+      if (nAttacks < MAX_ATTACK_2) {
+          if (!isMoveBlockingAttack(src->attacks[i], move)) {
+              destNode->attacks[nAttacks++] = src->attacks[i];
+          }
+      }
+  }
+
+  // 3. Обнуляем хвост массива
+  for (int i = nAttacks; i < MAX_ATTACK_2; ++i) {
+      destNode->attacks[i] = {0, 0};
+  }
 
   destNode->o2 = src->x2;
   destNode->o3 = src->x3;
@@ -250,7 +290,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
       }
 
   if (destNode->o3 > 0) {//build opened 4
-    int found4o = scanlines(2, t, move, destNode);
+    int found4o = scanlines(2, t, move, destNode, nAttacks);
     if (found4o) {
       destNode->o4 += 2;
       --destNode->o3;
@@ -295,7 +335,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
 //  }
 
   // 1. Сканируем на четверки. Те направления, где нашли 4, удалятся из t.
-  int found4 = scanlines(4, t, move, destNode);
+  int found4 = scanlines(4, t, move, destNode, nAttacks);
   if (found4) {
     destNode->o4 += found4;
     for (int i = 0; i<found4; ++i)
@@ -305,7 +345,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
   }
 
   // 2. Сканируем на тройки только в ОСТАВШИХСЯ направлениях.
-  int found3 = scanlines(5, t, move, destNode);
+  int found3 = scanlines(5, t, move, destNode, nAttacks);
   if (found3) {
     destNode->o3 += found3;
     for (int i = 0; i<found3; ++i)
@@ -320,7 +360,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) { //fills {totalRa
 //    destNode->o2 += 10;
 //  }
 
-  int f2 = scanlines(10, t, move, destNode);
+  int f2 = scanlines(10, t, move, destNode, nAttacks);
   if (f2) destNode->o2 += f2*10;
 
         double k2 = destNode->age > 12 ? 0.1

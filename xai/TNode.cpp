@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "TNode.h"
 
 // Define and optionally initialize the static members
@@ -9,6 +11,7 @@ volatile long long TNode::maxUpdated = 0;
 volatile TNode* TNode::first = NULL;
 
 TNode::TNode() {
+    //std::cout << "TNode Start!\n";
     totalChilds = 0;
     rating = 0;
     flags = 0;
@@ -17,6 +20,8 @@ TNode::TNode() {
     hashCodeO = 1;
     x2 = x3 = x4 = o2 = o3 = o4 = 0;
     next = 0;
+    ownAttacks = 0;
+    attacks[0].l = attacks[0].r = 0;
     if (first == NULL) first = this;
 };
 
@@ -24,26 +29,40 @@ TNode::TNode() {
 #include <cstdio>
 #include <string>
 
-// Метод 1: Hash и список атак
 void TNode::printPosition(char* buffer, size_t size) {
-    // Сначала печатаем заголовок с хешами
+    // 1. Печатаем хеши
     int offset = snprintf(buffer, size, "Hash %llu / %llu",
                           (unsigned long long)hashCodeX,
                           (unsigned long long)hashCodeO);
 
-    if (attacks[0]) {
-        offset += snprintf(buffer+offset, size-offset, ", Attacks: ");
+    // Проверяем, есть ли вообще атаки (хотя бы первая пара не нулевая)
+    if (attacks[0].l != 0 || attacks[0].r != 0) {
+        offset += snprintf(buffer + offset, size - offset, " | Atks: ");
     }
 
-    // Добавляем значения из массива attacks через запятую
-    for (int i = 0; i < MAX_ATTACK; ++i) {
-        if (!attacks[i]) break;
-        // Условие (attacks[i] != 0) добавлено, если нужно выводить только непустые ходы
-        int written = snprintf(buffer + offset, size - offset, "%d%s",
-                               (int)attacks[i],
-                               (i == MAX_ATTACK - 1) ? "" : ", ");
+    // 2. Проходим по массиву атак
+    for (int i = 0; i < MAX_ATTACK_2; ++i) {
+        if (attacks[i].l == 0 && attacks[i].r == 0) break; // Конец списка
+        if (offset >= size - 10) break; // Запас для предотвращения обрезания
+
+        bool isOwn = (i < ownAttacks); // Первые ownAttacks элементов — наши
+
+        // Формат вывода: [L-R] для своих, (L-R) для чужих
+        // Если L == R, выводим одно число для экономии места
+        char open = isOwn ? '[' : '(';
+        char close = isOwn ? ']' : ')';
+
+        int written;
+        if (attacks[i].l == attacks[i].r) {
+            written = snprintf(buffer + offset, size - offset, "%c%hhu%c ",
+                               open, (unsigned char)attacks[i].l, close);
+        } else {
+            written = snprintf(buffer + offset, size - offset, "%c%hhu-%hhu%c ",
+                               open, (unsigned char)attacks[i].l, (unsigned char)attacks[i].r, close);
+        }
+
+
         offset += written;
-        if (offset >= size) break; // Защита от переполнения буфера
     }
 }
 

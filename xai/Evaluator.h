@@ -13,12 +13,11 @@ class Evaluator : public Cursor {
         private:
         int cnt;
         inline bool comp(int x, int y, unsigned char c);
-        void addAttackIfEmpty(TNode* destNode, int cx, int cy);
+        void addAttackPair(TNode* destNode, int x1, int y1, int x2, int y2, int &totalAttacks);
 
         protected:
         bool  scanlines(int BlNo, int &lines, int N);
-        bool  scanlines2(int BlNo, int &lines, int N);
-        int   scanlines(int BlNo, int &lines, int N, TNode *destNode);
+        int scanlines(int BlNo, int &lines, int N, TNode *destNode, int &nAttacks);
 
         public:
         Evaluator(SimplyNumbers* sn, Hashtable* ht);

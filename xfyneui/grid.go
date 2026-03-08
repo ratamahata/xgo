@@ -31,14 +31,31 @@ func Show(win fyne.Window, sd *StatusController) fyne.CanvasObject {
 			icon := stack.Objects[1].(*boardIcon)
 			icon.Reset()
 		}
-
 		board.Reset(false)
 	})
 
+	// Добавляем кнопку Force Move
+	forceMove := widget.NewButtonWithIcon("Force Move", theme.MediaPlayIcon(), func() {
+		board.ForceNextMove()
+	})
+
+    // Добавляем кнопку отмены хода (Take Back)
+	takeBack := widget.NewButtonWithIcon("Take Back", theme.ContentUndoIcon(), func() {
+		for _, obj := range grid.Objects {
+			stack := obj.(*fyne.Container)
+			icon := stack.Objects[1].(*boardIcon)
+			icon.Reset()
+		}
+		board.TakeBack()
+	})
+
+	// Объединяем все три кнопки в один ряд
+	buttons := container.NewHBox(reset, forceMove, takeBack)
+
 	board.Reset(true)
 
-	// PASS the status controller to your periodic function
 	go syncPeriodic(board, sd)
 
-	return container.NewBorder(reset, nil, nil, nil, grid)
+	// Передаем контейнер с кнопками в верхнюю часть (top)
+	return container.NewBorder(buttons, nil, nil, nil, grid)
 }

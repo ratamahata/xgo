@@ -214,53 +214,79 @@ void Expander::findMovesToExpand(int startPass) {
     CursorHistory *h = current();
     TNode* curr = h->node;
 
-    // 1. Предварительная проверка на атаки (бывший pass 0)
     if (startPass == 0) {
         bool forceAttack = curr->x4 > 0
-            || curr->x3 > 0 && curr->o4 == 0
+            || (curr->x3 > 0 && curr->o4 == 0)
             || (curr->x2 > 0 && curr->o4 == 0 && curr->o3 == 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400));
+
         bool forceDefense = (curr->o4 > 0 || curr->o3 > 0);
 
-        if (forceAttack || forceDefense) {
-            TMove* sourceAttacks = forceAttack ? h->attacksX : h->attacksO;
-            int attackCount = forceAttack ? h->attacksXcount : h->attacksOcount;
+        if (curr->hashCodeX==34 && curr->hashCodeO==133) {
 
-            for (int i = 0; i < attackCount; ++i) {
-                TMove m = sourceAttacks[i];
-                if ((mode1 ? kl[m] <= 1 && isPerspectiveChildMode1(m) : isPerspectiveChild(m)) && isAlllowed(m)) {
-                    newChilds.move[newChilds.count++] = m;
-//                    if (cnt<10) {
-//                        std::cout << " A:" << (int)m;
-//                    }
+            std::cout << "34_133 A/D: " << forceAttack << " " << forceDefense;
+        }
+
+        if (forceAttack || forceDefense) {
+            int startIdx = forceDefense ? 0 : curr->ownAttacks;
+            int endIdx = forceDefense ? curr->ownAttacks : MAX_ATTACK_2;
+
+            for (int i = startIdx; i < endIdx; ++i) {
+                TAttack &atk = curr->attacks[i];
+                if (atk.l == 0 && atk.r == 0) break;
+
+                // 1. Вычисляем вектор направления между l и r
+                int x1 = atk.l % fsize, y1 = atk.l / fsize;
+                int x2 = atk.r % fsize, y2 = atk.r / fsize;
+
+                int dx = (x2 > x1) ? 1 : (x2 < x1 ? -1 : 0);
+                int dy = (y2 > y1) ? 1 : (y2 < y1 ? -1 : 0);
+
+                // 2. Проходим от l до r включительно
+                int curX = x1, curY = y1;
+                while (true) {
+                    TMove m = (TMove)(curX + curY * fsize);
+
+                    // Проверка: клетка должна быть пустой (kl[m] & 3 == 0) и разрешенной
+                    if ((kl[m] & 12) == 0) {
+                        // Проверка на дубликаты в newChilds
+                        bool alreadyAdded = false;
+                        for (int k = 0; k < newChilds.count; ++k) {
+                            if (newChilds.move[k] == m) { alreadyAdded = true; break; }
+                        }
+
+                        if (!alreadyAdded) {
+                            if ((mode1 ? kl[m] <= 1 && isPerspectiveChildMode1(m) : isPerspectiveChild(m)) && isAlllowed(m)) {
+                                if (newChilds.count < MAX_RELATIVES) {
+                                    newChilds.move[newChilds.count++] = m;
+                                }
+                            }
+                        }
+                    }
+
+                    if (curX == x2 && curY == y2) break;
+                    curX += dx; curY += dy;
+                    if (curX < 0 || curX >= fsize || curY < 0 || curY >= fsize) break; // На всякий случай
                 }
             }
 
-            // Если атаки найдены — выходим сразу
             if (newChilds.count > 0) {
-
-                    curr->setRage(true);
-//                   if (cnt<10) {
-//                       std::cout << std::endl << " (X,Y):" << curr->hashCodeX << " " << curr->hashCodeO << std::endl;
-//                       ++cnt;
-//                   }
+                curr->setRage(true);
                 return;
             }
 
-            // Если должны были атаковать/защищаться, но не нашли ходов в массиве — логируем промах
+            // Логирование промахов...
             if (curr->x4 > 0) logger->miss5();
             else if (curr->o4 > 0) logger->miss4o();
             else if (curr->x3 > 0) logger->miss4();
             else if (curr->o3 > 0) logger->miss3o();
             else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) logger->miss3();
-
-            // После промаха выполнение пойдет ниже к общему сбору ходов (бывший pass 1)
         }
     }
 
-    // 2. Общий сбор ходов (выполняется, если startPass != 0 или атаки не сработали)
+    // 2. Общий сбор ходов (выполняется если атак нет)
     for (TMove i = 0; i < TOTAL_CELLS; ++i) {
         if ((mode1 ? kl[i] <= 1 && isPerspectiveChildMode1(i) : isPerspectiveChild(i)) && isAlllowed(i)) {
             newChilds.move[newChilds.count++] = i;
         }
     }
-};
+}

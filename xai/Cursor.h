@@ -24,16 +24,12 @@ struct CursorHistory {
     CursorHistory();
     TMove en[MAX_ENABLERS];
     TMove move;
-    TMove attacksX[MAX_HISTORY_ATTACKS];
-    TMove attacksO[MAX_HISTORY_ATTACKS];
-    int attacksXcount;
-    int attacksOcount;
     int enCount;
     int symmX, symmY, symmXY, symmW, symmXW, symmYW, symmXYW;
     TNode *node;
     int previousKlValue;
 
-    void printAttacks(char* buffer, size_t size);
+    //void printAttacks(char* buffer, size_t size);
 };
 
 

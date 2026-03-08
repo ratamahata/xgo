@@ -14,6 +14,7 @@ public:
         void gridClick(int Col, int Row);
         int  getRResult();
         void restartClick();
+        void takeBackClick();
         void moveClick();
 
         char* getMsg1();
