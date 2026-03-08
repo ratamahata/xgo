@@ -133,7 +133,7 @@ void Evaluator::addAttackPair(TNode* destNode, int x1, int y1, int x2, int y2, i
 
 int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode, int &totalAttacks) {
     static const int bl[18] = {0, 1, 2, 6, 16, 21, 30, 6, 21, 30, 43, 53, 54, 9, 11, 30, 53};
-    static const int vec[4][2] = {{1, 1}, {1, -1}, {1, 0}, {0, 1}};
+    static const int vec[4][2] = {{1, 1}, {-1, 1}, {1, 0}, {0, 1}};
     static const int p2[4] = {1, 2, 4, 8};
 
     int x = N % fsize, y = N / fsize;
@@ -220,7 +220,7 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode, int &tota
 //==============================================================================
 
 void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
-    // 1. Поиск srcTotal, начиная от src->ownAttacks (т.к. до этого индекса идут свои)
+    // 1. Поиск границ атак в src
     int srcTotal = src->ownAttacks;
     while (srcTotal < MAX_ATTACK_2 && (src->attacks[srcTotal].l != 0 || src->attacks[srcTotal].r != 0)) {
         srcTotal++;
@@ -229,7 +229,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
     destNode->ownAttacks = 0;
     int nAttacks = 0;
 
-    // Лямбда для проверки блокировки (без изменений)
+    // Лямбда для проверки блокировки точки на отрезке
     auto isMoveBlockingAttack = [&](const TAttack& atk, TMove m) {
         if (atk.l == 0) return false;
         if (m == atk.l || m == atk.r) return true;
@@ -242,8 +242,17 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
         return collinear && withinX && withinY;
     };
 
-    // 2. Переносим атаки оппонента (из src) -> они становятся НАШИМИ в destNode
-    // Применяем фильтр: если наш ход move попал в атаку оппонента, она НЕ переносится
+    // Функция для сдвига границы внутрь
+    auto getNextInward = [&](TMove boundary, TMove other) -> TMove {
+        int x1 = boundary % fsize, y1 = boundary / fsize;
+        int x2 = other % fsize, y2 = other / fsize;
+        int dx = (x2 > x1) ? 1 : (x2 < x1 ? -1 : 0);
+        int dy = (y2 > y1) ? 1 : (y2 < y1 ? -1 : 0);
+        return (TMove)((x1 + dx) + (y1 + dy) * fsize);
+    };
+
+    // 2. Атаки оппонента становятся НАШИМИ (Старая логика фильтрации)
+    // Мы их удаляем, если ход попал в интервал, т.к. scanlines создаст актуальные
     for (int i = src->ownAttacks; i < srcTotal; ++i) {
         if (destNode->ownAttacks < MAX_ATTACK_1) {
             if (!isMoveBlockingAttack(src->attacks[i], move)) {
@@ -253,20 +262,42 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
         }
     }
 
-    // 3. Переносим наши старые атаки (из src) -> они становятся ЧУЖИМИ в destNode
-    // (Здесь тоже фильтруем, так как наш ход мог закрыть свою же старую угрозу)
+    // 3. Наши старые атаки становятся ЧУЖИМИ (Логика подрезки)
+    // Важно сохранить их для оппонента, даже если они чуть прижаты
     for (int i = 0; i < src->ownAttacks; ++i) {
-        if (nAttacks < MAX_ATTACK_2) {
-            if (!isMoveBlockingAttack(src->attacks[i], move)) {
-                destNode->attacks[nAttacks++] = src->attacks[i];
+        if (nAttacks >= MAX_ATTACK_2) break;
+
+        TAttack atk = src->attacks[i];
+        bool keep = true;
+
+        if (isMoveBlockingAttack(atk, move)) {
+            if (move == atk.l || move == atk.r) {
+                TMove other = (move == atk.l) ? atk.r : atk.l;
+                if (atk.l == atk.r) {
+                    keep = false;
+                } else {
+                    TMove inward = getNextInward(move, other);
+                    // Проверяем, если нет четвёрок и осталась ли пустота за подрезанным краем
+                    if (src->o4==0 && !comp(inward % fsize, inward / fsize, 2)) keep = false;
+                    else { if (move == atk.l) atk.l = inward; else atk.r = inward; }
+                }
+            } else {
+                // Ход в центр интервала полностью блокирует старую атаку для оппонента
+                keep = false;
             }
+        }
+
+        if (keep) {
+            destNode->attacks[nAttacks++] = atk;
         }
     }
 
-    // 4. Обнуляем только ОДИН элемент в хвосте (маркер конца списка), если есть место
+    // 4. Очистка следующего слота (маркер конца)
     if (nAttacks < MAX_ATTACK_2) {
         destNode->attacks[nAttacks] = {0, 0};
     }
+
+    // ... далее scanlines пересчитает и добавит свежие own-атаки
 
   static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
 

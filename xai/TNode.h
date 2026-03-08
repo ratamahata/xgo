@@ -20,7 +20,7 @@ typedef uint32_t THash;
 #define BIG_PARENT4   60000
 #define BIG_PARENT5  120000
 
-#define CULL_RATING1 6066
+#define CULL_RATING1 7000
 #define CULL_RATING2 13000
 
 #define MAX_ATTACK_1 6

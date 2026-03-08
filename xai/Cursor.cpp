@@ -267,3 +267,28 @@ inline bool Cursor::allow(int move) {
 int Cursor::getMovesCount() {
   return count0 > 0 && count0<=count ? count0 : count;
 }
+
+
+//------------------------------------------------------------------------------
+
+
+void Cursor::printHistory() {
+    // 1. Собираем ходы X (Крестики) - теперь это 2-й, 4-й ходы партии (индексы 0, 2, 4...)
+    std::cout << "X: ";
+    bool firstX = true;
+    for (int i = 0; i < count; i += 2) {
+        if (!firstX) std::cout << ", ";
+        std::cout << (int)history[i].move;
+        firstX = false;
+    }
+
+    // 2. Собираем ходы O (Нолики) - теперь это 3-й, 5-й ходы партии (индексы 1, 3, 5...)
+    std::cout << " | O: ";
+    bool firstO = true;
+    for (int i = 1; i < count; i += 2) {
+        if (!firstO) std::cout << ", ";
+        std::cout << (int)history[i].move;
+        firstO = false;
+    }
+    std::cout << std::endl;
+}

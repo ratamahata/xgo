@@ -104,6 +104,14 @@ void Expander ::expand(int startPass, TNode* cursor) {
         ++created;
         rate(cursor, node, move);
         ++cursor->totalChilds;
+
+//        if (node->hashCodeX==490093 && node->hashCodeO==6402) {
+//            char msg7[200];
+//            node->printPosition(msg7, 200);
+//            std::cout << "$$$: " << msg7 << " \n";
+//            printHistory();
+//        }
+
     } else {
         if (startPass == 0) {
             cursor->totalChilds += (node->totalChilds+1);
@@ -248,7 +256,8 @@ void Expander::findMovesToExpand(int startPass) {
             int startIdx = forceDefense ? 0 : curr->ownAttacks;
             int endIdx = forceAttack ?  MAX_ATTACK_2 : curr->ownAttacks;
 
-            for (int i = startIdx; i < endIdx; ++i) {
+            int i;
+            for (i = startIdx; i < endIdx; ++i) {
                 TAttack &atk = curr->attacks[i];
                 if (atk.l == 0 && atk.r == 0) break;
 
@@ -293,8 +302,17 @@ void Expander::findMovesToExpand(int startPass) {
                 return;
             }
 
-            // Логирование промахов...
-            if (curr->x4 > 0) logger->miss5();
+            // Логирование промахов...   printed as   miss5Count, miss4oCount, miss4Count, miss3oCount, miss3Count,
+            if (curr->x4 > 0)  {
+                logger->miss5();
+                if (cnt < 10) {
+                    ++cnt;
+                    char msg7[200];
+                    curr->printPosition(msg7, 200);
+                    std::cout << "Miss5: " << msg7 << " from: " << startIdx << " to: " << i << " \n";
+                    printHistory();
+                }
+            }
             else if (curr->o4 > 0) logger->miss4o();
             else if (curr->x3 > 0) logger->miss4();
             else if (curr->o3 > 0) logger->miss3o();

@@ -29,7 +29,7 @@ struct CursorHistory {
     TNode *node;
     int previousKlValue;
 
-    //void printAttacks(char* buffer, size_t size);
+
 };
 
 
@@ -41,10 +41,12 @@ public:
   int getMovesCount();
   virtual void rate(TNode *src, TNode *destNode, TMove move) = 0;
 
+  void printHistory();
+
 protected:
 
   int gameMode;//0 = Go - Moku, 1 = 5-in-a-row, 2 = Renjue
-  int count;  //count of moves made (may include imaginary moves of AI)
+  int count;  //count of moves made (may include additional moves of AI, if called while in calculation phase)
   int count0; //count of moves made (only by players)
   bool building; //indicates that some moves made by AI while executing buildTree() function, which will be taken back
 
