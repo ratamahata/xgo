@@ -135,13 +135,6 @@ void Expander ::expand(int startPass, TNode* cursor) {
         rate(cursor, node, move);
         ++cursor->totalChilds;
 
-//        if (node->hashCodeX==490093 && node->hashCodeO==6402) {
-//            char msg7[200];
-//            node->printPosition(msg7, 200);
-//            std::cout << "$$$: " << msg7 << " \n";
-//            printHistory();
-//        }
-
     } else {
         if (startPass == 0) {
             cursor->totalChilds += (node->totalChilds+1);
@@ -315,6 +308,16 @@ void Expander::findMovesToExpand(int startPass) {
                     if (curX < 0 || curX >= fsize || curY < 0 || curY >= fsize) break; // На всякий случай
                 }
             }
+
+//            if (curr->hashCodeX==32349 && curr->hashCodeO==20713) {
+//                printHistory("New Childs ", curr);
+//                std::cout << "\n newChilds.count " << newChilds.count << " moves "
+//                    << (int)newChilds.move[0] << ","
+//                    << (int)newChilds.move[1] << ","
+//                    << (int)newChilds.move[2] << ","
+//                    << (int)newChilds.move[3]
+//                    << "\n";
+//            }
 
             if (newChilds.count > 0) {
                 if (forceAttack) curr->setRageAttack(true);

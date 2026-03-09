@@ -279,13 +279,16 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
                     keep = false;
                 } else {
                     TMove inward = getNextInward(move, other);
-                    // Проверяем, если нет четвёрок и осталась ли пустота за подрезанным краем
-                    if (otherCut && !comp(inward % fsize, inward / fsize, 2)) keep = false;
-                    else { if (move == atk.l) atk.l = inward; else atk.r = inward; }
+                    if (move == atk.l) atk.l = inward; else atk.r = inward;
                 }
             } else {
+                if (src->o3>0 && comp(atk.l % fsize, atk.l / fsize, 2) && comp(atk.r % fsize, atk.r / fsize, 2)) {
+                    if (move - atk.l < atk.r - move) atk.l = getNextInward(move, atk.r);
+                    else  atk.r = getNextInward(move, atk.l);
+                } else {
                 // Ход в центр интервала - блокируем полностью
-                keep = false;
+                    keep = false;
+                }
             }
         }
 
