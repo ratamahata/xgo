@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-
+#include <iostream>
 
 #pragma hdrstop
 
@@ -34,7 +34,8 @@ void Builder::buildTree() {
     i = chooseNodeToExpand();
 
     if (i == -1) {
-        logger->error("builder fallback");
+        //logger->error("builder fallback");
+        std::cout << "builder fallback\n";
         ++cur->node->totalDirectChilds;
         back();
         cur = current();

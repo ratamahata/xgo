@@ -10,6 +10,8 @@ class MovesBucket {
         public:
         int count;
         TMove move[MAX_RELATIVES];
+        void add(TMove m);
+        bool contains(TMove m);
 };
 
 class Expander : public Relator {
@@ -25,7 +27,11 @@ protected:
 private:
         int cnt;
         MovesBucket newChilds;
+        MovesBucket otherNewChilds; //second priority
         void findMovesToExpand(int start);
+        void addChildNoDupe(TNode* parent, TMove m);
+        void addChild(TNode* parent, TMove m);
+        bool isExpected(TNode* curr, TMove i);
 };
 
 #endif

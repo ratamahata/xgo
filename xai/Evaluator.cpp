@@ -298,7 +298,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
 
     // ... остальной код (scanlines и т.д.)
 
-  static const int vec[4][2] = {{1,1},{1,-1},{1,0},{0,1}};
+  static const int vec[4][2] = {{1,1},{-1,1},{1,0},{0,1}};
 
   destNode->o2 = src->x2;
   destNode->o3 = src->x3;
