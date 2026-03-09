@@ -34,9 +34,8 @@ void Builder::buildTree() {
     i = chooseNodeToExpand();
 
     if (i == -1) {
-        //logger->error("builder fallback");
-        std::cout << "builder fallback\n";
-        ++cur->node->totalDirectChilds;
+        printHistory("builder fallback.", cur->node);
+        cur->node->totalChilds += 10;
         back();
         cur = current();
         continue;

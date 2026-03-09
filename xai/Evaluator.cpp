@@ -280,7 +280,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
                 } else {
                     TMove inward = getNextInward(move, other);
                     // Проверяем, если нет четвёрок и осталась ли пустота за подрезанным краем
-                    if ((src->o4==0 || otherCut) && !comp(inward % fsize, inward / fsize, 2)) keep = false;
+                    if (otherCut && !comp(inward % fsize, inward / fsize, 2)) keep = false;
                     else { if (move == atk.l) atk.l = inward; else atk.r = inward; }
                 }
             } else {

@@ -273,13 +273,11 @@ void Expander::findMovesToExpand(int startPass) {
                 forceAttack = true;//try build 4
             }
         } else {
-            if ((curr->x3 > 0 || curr->x2 > 0) && curr->rating < -200) {
+            if (curr->x3 > 0 || curr->x2 > 0) {
                 forceAttack = true;//build 3 or 4
-            }  else if (curr->o2 > 0 && curr->rating > 200) {
+            }
+            if (curr->o2 > 0) {
                 forceDefense = true;//close 2
-                if (curr->x3 > 0) {
-                    forceAttack = true;//try build 4
-                }
             }
         }
 

@@ -271,6 +271,20 @@ int Cursor::getMovesCount() {
 
 //------------------------------------------------------------------------------
 
+void Cursor::printHistory(const char* pref, TNode *node) {
+    char buf[200];
+    node->printPosition(buf, 200);
+    std::cout << pref << buf << " \n";
+    std::cout << "nChilds=" << node->totalChilds
+        << " Direct " << (int)(node->totalDirectChilds)
+        << " Rage Def " << node->isRageDef()
+        << " Rage Attk " << node->isRageAttack()
+        << " Rating " << node->rating
+        << " Attacks count (self)  " << (int)node->o4 << "+" << (int)node->o3 << "+" << (int)node->o2
+        << " Attacks count (op)  " << (int)node->x4 << "+" << (int)node->x3 << "+" << (int)node->x2
+        << "\n";
+    printHistory();
+}
 
 void Cursor::printHistory() {
     // 1. Собираем ходы X (Крестики) - теперь это 2-й, 4-й ходы партии (индексы 0, 2, 4...)

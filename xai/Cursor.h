@@ -42,6 +42,7 @@ public:
   virtual void rate(TNode *src, TNode *destNode, TMove move) = 0;
 
   void printHistory();
+  void printHistory(const char* pref, TNode *node);
 
 protected:
 
