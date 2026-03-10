@@ -242,12 +242,20 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
         return collinear && withinX && withinY;
     };
 
-    auto getNextInward = [&](TMove boundary, TMove other) -> TMove {
-        int x1 = boundary % fsize, y1 = boundary / fsize;
-        int x2 = other % fsize, y2 = other / fsize;
-        int dx = (x2 > x1) ? 1 : (x2 < x1 ? -1 : 0);
-        int dy = (y2 > y1) ? 1 : (y2 < y1 ? -1 : 0);
-        return (TMove)((x1 + dx) + (y1 + dy) * fsize);
+    // Обновленная лямбда: ищет свободную клетку ВКЛЮЧАЯ target
+    auto findNextFreeInward = [&](TMove from, TMove target) -> TMove {
+        int x = from % fsize, y = from / fsize;
+        int tx = target % fsize, ty = target / fsize;
+        int dx = (tx > x) ? 1 : (tx < x ? -1 : 0);
+        int dy = (ty > y) ? 1 : (ty < y ? -1 : 0);
+
+        // Шагаем от move в сторону target, пока не дойдем до цели (включительно)
+        while (x != tx || y != ty) {
+            x += dx;
+            y += dy;
+            if (comp(x, y, 2)) return (TMove)(x + y * fsize);
+        }
+        return 0;
     };
 
     // 2. Атаки оппонента становятся НАШИМИ (Удаляем, если попал ход, т.к. пересоздадим)
@@ -260,7 +268,7 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
         }
     }
 
-    // 3. Наши старые атаки становятся ЧУЖИМИ (Логика подрезки с проверкой на "второй раз")
+    // 3. Наши старые атаки становятся ЧУЖИМИ
     for (int i = 0; i < src->ownAttacks; ++i) {
         if (nAttacks >= MAX_ATTACK_2) break;
 
@@ -271,22 +279,26 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
             if (move == atk.l || move == atk.r) {
                 TMove other = (move == atk.l) ? atk.r : atk.l;
 
-                // --- НОВАЯ ЛОГИКА ---
-                // Если противоположный конец интервала уже НЕ пустой (был подрезан ранее)
-                // Или если атака была точечной (l == r) - удаляем её
-                bool otherCut = !comp(other % fsize, other / fsize, 2);
-                if (atk.l == atk.r || otherCut) {
-                    keep = false;
+                // Ищем новую свободную границу вместо заблокированной 'move'
+                TMove nextFree = findNextFreeInward(move, other);
+
+                if (nextFree == 0) {
+                    keep = false; // Все позиции заняты или атака схлопнулась
                 } else {
-                    TMove inward = getNextInward(move, other);
-                    if (move == atk.l) atk.l = inward; else atk.r = inward;
+                    if (move == atk.l) atk.l = nextFree; else atk.r = nextFree;
                 }
             } else {
-                if (src->o3>0 && comp(atk.l % fsize, atk.l / fsize, 2) && comp(atk.r % fsize, atk.r / fsize, 2)) {
-                    if (move - atk.l < atk.r - move) atk.l = getNextInward(move, atk.r);
-                    else  atk.r = getNextInward(move, atk.l);
+                // Ход в центр интервала
+                if (src->o3 > 0 && comp(atk.l % fsize, atk.l / fsize, 2) && comp(atk.r % fsize, atk.r / fsize, 2)) {
+                    // Пытаемся подрезать с одной из сторон, ища свободную клетку
+                    if (move - atk.l < atk.r - move) {
+                        TMove next = findNextFreeInward(move, atk.r);
+                        if (next != 0) atk.l = next; else keep = false;
+                    } else {
+                        TMove next = findNextFreeInward(move, atk.l);
+                        if (next != 0) atk.r = next; else keep = false;
+                    }
                 } else {
-                // Ход в центр интервала - блокируем полностью
                     keep = false;
                 }
             }
