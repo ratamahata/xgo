@@ -252,7 +252,7 @@ void Expander::findMovesToExpand(int startPass) {
     CursorHistory *h = current();
     TNode* curr = h->node;
 
-    if (startPass == 0) {
+    if (startPass == 0 && curr->attacks[MAX_ATTACK_2-1].r == 0) {//use attacks only if they are not overflown
 
         bool forceAttack = false, forceDefense = false;
 

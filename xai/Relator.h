@@ -20,7 +20,6 @@ class Relator : public Evaluator {
         Relator(SimplyNumbers*, Hashtable* );
 
         TNode* getChild(TNode *parent, TMove childMove);
-        RelativeBucket getParents(TNode *node);
         bool isPerspectiveChild(TMove move);
         bool isPerspectiveChildMode1(TMove move);
 

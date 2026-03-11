@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-
+#include <iostream>
 
 #pragma hdrstop
 
@@ -12,7 +12,10 @@
 Relator::Relator(SimplyNumbers* sn, Hashtable* ht) : Evaluator(sn, ht) {};
 
 TNode* Relator::getChild(TNode *parent, TMove childMove) {
-   if (childMove == 112) return NULL;
+   if (childMove == 112) {
+    printHistory("ChildMove of 112", parent);//must not happen
+    return NULL;
+   }
    THash hashCodeX = parent->hashCodeO;
    THash hashCodeO = parent->hashCodeX * simplyGen->getHash(childMove);
    return movesHash->get(hashCodeX, hashCodeO, parent->age + 1);
@@ -113,7 +116,7 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
                         }
                 }*/
                 for (TMove i = 0; i < TOTAL_CELLS; ++i) {
-                    if (kl[i]!=0) {
+                    if (i!=112 && kl[i]!=0) {
                         TNode *child = getChild(node, i);
 //                        if (child == from) {
 //                                fromFound = true;
@@ -158,6 +161,11 @@ bool Relator::updateNode(TNode *node, TNode *from, bool updateRating, int addedC
 //---------------------------------------------------------------------------
 
 TNode* Relator::getParent(TNode *node, TMove move) {
+
+   if (move == 112) {
+    printHistory("parent of 112", node);//must not happen
+    return NULL;
+   }
 
     unsigned long multiplier = simplyGen->getExistingHash(move);
     THash prevPos = node->hashCodeO / multiplier;
