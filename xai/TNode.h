@@ -24,7 +24,7 @@ typedef uint32_t THash;
 #define CULL_RATING2 13000
 
 #define MAX_ATTACK_1 6
-#define MAX_ATTACK_2 8
+#define MAX_ATTACK_2 9
 
 typedef signed short int TRating;
 

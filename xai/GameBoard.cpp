@@ -88,10 +88,13 @@ int GameBoard::move() {
     int choosenMove;
     int rating;
     bool mode1 = gameMode == 1 &&  count == 2;
+    bool exp0 = false;
     for (int i = 0; i < TOTAL_CELLS; ++i) {
         if (mode1 ? kl[i]<=1 && isPerspectiveChildMode1(i) : isPerspectiveChild(i)) {
             TNode* n = getChild(node, i);
-            if (n != NULL && (choosen == NULL || rating < n->rating)) {
+            bool exp = isExpected(node, i);
+            if (n != NULL && (choosen == NULL || rating < n->rating || !exp0 && exp)) {
+                exp0 = exp;
                 choosenMove = i;
                 choosen = n;
                 rating = choosen->rating;
