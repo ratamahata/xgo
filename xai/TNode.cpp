@@ -21,7 +21,9 @@ TNode::TNode() {
     x2 = x3 = x4 = o2 = o3 = o4 = 0;
     next = 0;
     ownAttacks = 0;
+#ifdef STORE_ATTACKS
     attacks[0].l = attacks[0].r = 0;
+#endif
     if (first == NULL) first = this;
 };
 
@@ -35,6 +37,11 @@ void TNode::printPosition(char* buffer, size_t size) {
                           (unsigned long long)hashCodeX,
                           (unsigned long long)hashCodeO);
 
+    if (isFixedRating()) {
+        offset += snprintf(buffer + offset, size - offset, " Fixed ");
+    }
+
+#ifdef STORE_ATTACKS
     // Проверяем, есть ли вообще атаки (хотя бы первая пара не нулевая)
     if (attacks[0].l != 0 || attacks[0].r != 0) {
         offset += snprintf(buffer + offset, size - offset, " | Atks: ");
@@ -64,6 +71,7 @@ void TNode::printPosition(char* buffer, size_t size) {
 
         offset += written;
     }
+#endif
 }
 
 // Метод 2: Счетчики x и o

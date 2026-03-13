@@ -97,6 +97,7 @@ skip:     { if (c==8)
 //==============================================================================
 
 void Evaluator::addAttackPair(TNode* destNode, int x1, int y1, int x2, int y2, int &totalAttacks) {
+#ifdef STORE_ATTACKS
     TMove m1 = (TMove)(x1 + y1 * fsize);
     TMove m2 = (TMove)(x2 + y2 * fsize);
 
@@ -127,6 +128,7 @@ void Evaluator::addAttackPair(TNode* destNode, int x1, int y1, int x2, int y2, i
     destNode->attacks[destNode->ownAttacks].r = m2;
     destNode->ownAttacks++;
     totalAttacks++;
+#endif
 }
 
 
@@ -220,6 +222,11 @@ int Evaluator::scanlines(int BlNo, int &lines, int N, TNode *destNode, int &tota
 //==============================================================================
 
 void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
+
+int nAttacks = 0;
+
+#ifdef STORE_ATTACKS // ==============================================
+
     // 1. Поиск границ атак в src
     int srcTotal = src->ownAttacks;
     while (srcTotal < MAX_ATTACK_2 && (src->attacks[srcTotal].l != 0 || src->attacks[srcTotal].r != 0)) {
@@ -227,7 +234,6 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
     }
 
     destNode->ownAttacks = 0;
-    int nAttacks = 0;
 
     // Вспомогательная лямбда для проверки блокировки точки на отрезке
     auto isMoveBlockingAttack = [&](const TAttack& atk, TMove m) {
@@ -311,7 +317,8 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
 
     if (nAttacks < MAX_ATTACK_2) destNode->attacks[nAttacks] = {0, 0};
 
-    // ... остальной код (scanlines и т.д.)
+#endif //=============================== end of #ifdef STORE_ATTACKS
+
 
   static const int vec[4][2] = {{1,1},{-1,1},{1,0},{0,1}};
 
@@ -321,6 +328,12 @@ void Evaluator::rate(TNode *src, TNode *destNode, TMove move) {
   destNode->x2 = src->o2 > 1 ? src->o2 - 1 : src->o2;
   destNode->x3 = src->o3;
   destNode->x4 = src->o4;
+//
+//    //src must be 64695, 11598094
+//    if (destNode->hashCodeX==11598094 && destNode->hashCodeO==2013915) {
+//        printHistory("Src", src);
+//        printHistory("Dest", destNode);
+//    }
 
   int t = 15; // 'lines'
 

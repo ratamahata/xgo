@@ -20,9 +20,10 @@ typedef uint32_t THash;
 #define BIG_PARENT4   60000
 #define BIG_PARENT5  120000
 
-#define CULL_RATING1 8000
+#define CULL_RATING1 6066
 #define CULL_RATING2 13000
 
+//#define STORE_ATTACKS  //use to toggle attacks storing logic
 #define MAX_ATTACK_1 6
 #define MAX_ATTACK_2 9
 
@@ -32,11 +33,13 @@ typedef signed short int TRating;
 #define FLAG_RAGE_ATTACK 2 // 00000010
 #define FLAG_RAGE_DEF    4 // 00000100
 
+#ifdef STORE_ATTACKS
     class TAttack
     {
         public:
         TMove l,r;
     };
+#endif
 
     class TNode {
       public:
@@ -73,7 +76,9 @@ typedef signed short int TRating;
 
       TByte flags;
       TByte ownAttacks;
+#ifdef STORE_ATTACKS
       TAttack attacks[MAX_ATTACK_2]{}; // сначала идут наши атаки в количестве ownAttacks, потом атаки оппонента
+#endif
 
       TByte //move,
         totalDirectChilds,

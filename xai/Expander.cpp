@@ -252,6 +252,7 @@ void Expander::findMovesToExpand(int startPass) {
     CursorHistory *h = current();
     TNode* curr = h->node;
 
+#ifdef STORE_ATTACKS
     if (startPass == 0 && curr->attacks[MAX_ATTACK_2-1].r == 0) {//use attacks only if they are not overflown
 
         bool forceAttack = false, forceDefense = false;
@@ -342,6 +343,7 @@ void Expander::findMovesToExpand(int startPass) {
             else if (curr->x2 > 0 && (curr->totalDirectChilds == 0 || curr->rating > 2400)) logger->miss3();
         }
     }
+#endif // -----  end of #ifdef STORE_ATTACKS
 
     // 2. Общий сбор ходов (выполняется если атак нет)
     for (TMove i = 0; i < TOTAL_CELLS; ++i) {
